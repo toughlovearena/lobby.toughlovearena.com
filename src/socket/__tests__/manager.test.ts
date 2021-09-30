@@ -1,19 +1,18 @@
-import { Organizer } from '../../group';
-import { HandshakeData } from '../../types';
+import { LobbyRegistrar } from '../../lobby';
 import { FakeTimeKeeper } from '../../__tests__/__mocks__/fakeTimeKeeper';
 import { SocketManager } from '../manager';
 import { SocketContainer } from '../socket';
 import { FakeSocket } from './__mocks__/fakeSocket';
 
 describe('socketManager', () => {
-  let organizer: Organizer<HandshakeData>;
+  let lobbyRegistrar: LobbyRegistrar;
   let timeKeeper: FakeTimeKeeper;
   let sut: SocketManager;
 
   beforeEach(() => {
-    organizer = new Organizer<HandshakeData>();
+    lobbyRegistrar = new LobbyRegistrar();
     timeKeeper = new FakeTimeKeeper();
-    sut = new SocketManager(organizer, timeKeeper);
+    sut = new SocketManager(lobbyRegistrar, timeKeeper);
   });
 
   test('create()', () => {

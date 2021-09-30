@@ -9,7 +9,7 @@ export interface MessageErr {
 }
 export interface MessageData {
   type: 'data';
-  error: any;
+  message: any;
 }
 
 export type SocketMessage = MessageReg | MessageErr | MessageData;

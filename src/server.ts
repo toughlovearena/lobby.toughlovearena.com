@@ -10,8 +10,8 @@ export class Server {
 
   constructor(updater: Updater) {
     const router = new Router();
-    const organizer = new LobbyRegistrar();
-    const manager = new SocketManager(organizer, RealClock);
+    const lobbyRegistrar = new LobbyRegistrar();
+    const manager = new SocketManager(lobbyRegistrar, RealClock);
 
     router.get('/', (req, res) => {
       res.redirect('/health');
@@ -23,7 +23,7 @@ export class Server {
         started: new Date(updater.startedAt),
         testVer: 3,
         sockets: manager.health(),
-        organizer: organizer.health(),
+        organizer: lobbyRegistrar.health(),
       };
       res.send(data);
     });

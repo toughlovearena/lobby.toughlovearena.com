@@ -15,7 +15,7 @@ export class SocketManager {
     const socketContainer = new SocketContainer({
       clientId: (this.clientTick++).toString(),
       socket: ws,
-      organizer: this.organizer,
+      lobbyRegistrar: this.organizer,
       timeKeeper: this.timeKeeper,
       onCleanup: sc => this.onSocketCleanup(sc),
     });

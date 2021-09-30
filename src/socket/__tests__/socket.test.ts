@@ -1,50 +1,50 @@
-import { Organizer } from '../../group';
-import { HandshakeData } from '../../types';
+import { LobbyRegistrar } from '../../lobby';
+import { SocketMessage } from '../../types';
 import { FakeTimeKeeper } from '../../__tests__/__mocks__/fakeTimeKeeper';
 import { SocketContainer } from '../socket';
 import { FakeSocket } from './__mocks__/fakeSocket';
 
 describe('socket', () => {
-  let organizer: Organizer<HandshakeData>;
+  let lobbyRegistrar: LobbyRegistrar;
   let ws: FakeSocket;
   let timeKeeper: FakeTimeKeeper;
   let cleanupCount = 0;
   let sut: SocketContainer;
 
-  function sendMessage(msg: HandshakeData) {
+  function sendMessage(msg: SocketMessage) {
     ws._trigger('message', JSON.stringify(msg));
   }
   const clientId = 'c1';
   const groupId = 's1';
-  const registerData: HandshakeData = {
+  const registerData: SocketMessage = {
     type: 'register',
-    message: groupId,
+    lobbyId: groupId,
   };
-  const signalData1: HandshakeData = {
-    type: 'signal',
+  const signalData1: SocketMessage = {
+    type: 'data',
     message: 'data1',
   };
-  const signalData2: HandshakeData = {
-    type: 'signal',
+  const signalData2: SocketMessage = {
+    type: 'data',
     message: 'data2',
   };
-  const signalData3: HandshakeData = {
-    type: 'signal',
+  const signalData3: SocketMessage = {
+    type: 'data',
     message: 'data3',
   };
   function getGroupSnapshot() {
-    return organizer.health().filter(g => g.signalId === groupId)[0];
+    return lobbyRegistrar.health().filter(g => g.signalId === groupId)[0];
   }
 
   beforeEach(() => {
-    organizer = new Organizer<HandshakeData>();
+    lobbyRegistrar = new LobbyRegistrar();
     ws = new FakeSocket();
     timeKeeper = new FakeTimeKeeper();
     cleanupCount = 0;
     sut = new SocketContainer({
       clientId,
       socket: ws._cast(),
-      organizer,
+      lobbyRegistrar: lobbyRegistrar,
       timeKeeper,
       onCleanup: () => cleanupCount++,
     });
@@ -106,7 +106,7 @@ describe('socket', () => {
     new SocketContainer({
       clientId: 'c2',
       socket: ws2._cast(),
-      organizer,
+      lobbyRegistrar: lobbyRegistrar,
       timeKeeper,
       onCleanup: () => { },
     });

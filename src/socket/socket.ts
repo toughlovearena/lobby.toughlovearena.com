@@ -8,7 +8,7 @@ export type CleanupSocket = (sc: SocketContainer) => void;
 export class SocketContainer {
   readonly clientId: string;
   private readonly socket: WebSocket;
-  private readonly registry: LobbyRegistrar;
+  private readonly lobbyRegistrar: LobbyRegistrar;
   private readonly timeKeeper: TimeKeeper;
   private readonly createdAt: number;
   private updatedAt: number;
@@ -22,13 +22,13 @@ export class SocketContainer {
   constructor(deps: {
     clientId: string;
     socket: WebSocket;
-    organizer: LobbyRegistrar;
+    lobbyRegistrar: LobbyRegistrar;
     timeKeeper: TimeKeeper;
     onCleanup: CleanupSocket;
   }) {
     this.clientId = deps.clientId;
     this.socket = deps.socket;
-    this.registry = deps.organizer;
+    this.lobbyRegistrar = deps.lobbyRegistrar;
     this.timeKeeper = deps.timeKeeper;
     this.onCleanup = deps.onCleanup;
 
@@ -84,7 +84,7 @@ export class SocketContainer {
       throw new Error('signal already registered');
     }
     const lobbyId = data.lobbyId;
-    this.comm = this.registry.join({
+    this.comm = this.lobbyRegistrar.join({
       lobbyId,
       clientId: this.clientId,
       cb: cbdata => this.send(cbdata),
