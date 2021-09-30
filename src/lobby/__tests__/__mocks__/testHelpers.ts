@@ -1,4 +1,4 @@
-import { SignalCallback } from "../../group";
+import { SignalCallback } from "../../lobbyManager";
 
 export const EmptyCallback: SignalCallback<any> = () => {
   // do nothing

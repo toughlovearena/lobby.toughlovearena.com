@@ -1,5 +1,5 @@
 import * as WebSocket from 'ws';
-import { Organizer } from "../group";
+import { LobbyRegistrar } from "../lobby";
 import { TimeKeeper } from '../time';
 import { SocketContainer } from "./socket";
 
@@ -7,7 +7,7 @@ export class SocketManager {
   private clientTick = 0;
   private readonly sockets: Record<string, SocketContainer> = {};
   constructor(
-    private readonly organizer: Organizer,
+    private readonly organizer: LobbyRegistrar,
     private readonly timeKeeper: TimeKeeper,
   ) { }
 

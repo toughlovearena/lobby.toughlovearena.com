@@ -1,5 +1,5 @@
 import * as WebSocket from 'ws';
-import { Communicator, Organizer } from '../group';
+import { LobbyConnection, LobbyRegistrar } from '../lobby';
 import { TimeKeeper } from '../time';
 import { MessageReg, SocketMessage } from '../types';
 
@@ -8,7 +8,7 @@ export type CleanupSocket = (sc: SocketContainer) => void;
 export class SocketContainer {
   readonly clientId: string;
   private readonly socket: WebSocket;
-  private readonly registry: Organizer;
+  private readonly registry: LobbyRegistrar;
   private readonly timeKeeper: TimeKeeper;
   private readonly createdAt: number;
   private updatedAt: number;
@@ -16,13 +16,13 @@ export class SocketContainer {
   static readonly TTL = 10 * 60 * 1000; // 10 minutes
 
   // stateful
-  private comm: Communicator;
+  private comm: LobbyConnection;
   private pending: string[] = [];
 
   constructor(deps: {
     clientId: string;
     socket: WebSocket;
-    organizer: Organizer;
+    organizer: LobbyRegistrar;
     timeKeeper: TimeKeeper;
     onCleanup: CleanupSocket;
   }) {
@@ -83,9 +83,9 @@ export class SocketContainer {
     if (this.comm !== undefined) {
       throw new Error('signal already registered');
     }
-    const signalId = data.signalId;
+    const lobbyId = data.lobbyId;
     this.comm = this.registry.join({
-      signalId,
+      lobbyId,
       clientId: this.clientId,
       cb: cbdata => this.send(cbdata),
     });
@@ -100,7 +100,7 @@ export class SocketContainer {
   health() {
     return {
       clientId: this.clientId,
-      group: this.comm?.signalId,
+      group: this.comm?.lobbyId,
       pending: this.pending,
       ageInSeconds: Math.ceil((this.timeKeeper.now() - this.updatedAt) / 1000),
     };

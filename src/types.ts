@@ -1,7 +1,7 @@
 
 export interface MessageReg {
   type: 'register';
-  signalId: string;
+  lobbyId: string;
 }
 export interface MessageErr {
   type: 'error';

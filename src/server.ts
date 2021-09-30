@@ -1,7 +1,7 @@
 import { Updater } from '@toughlovearena/updater';
 import cors from 'cors';
 import WebSocketExpress, { Router } from 'websocket-express';
-import { Organizer } from './group';
+import { LobbyRegistrar } from './lobby';
 import { SocketManager } from './socket';
 import { RealClock } from './time';
 
@@ -10,7 +10,7 @@ export class Server {
 
   constructor(updater: Updater) {
     const router = new Router();
-    const organizer = new Organizer();
+    const organizer = new LobbyRegistrar();
     const manager = new SocketManager(organizer, RealClock);
 
     router.get('/', (req, res) => {

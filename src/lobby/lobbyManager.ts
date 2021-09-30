@@ -7,12 +7,12 @@ interface HistoryRecord<T> {
   message: T;
 }
 
-export class Group {
-  readonly signalId: string;
+export class LobbyManager {
+  readonly lobbyId: string;
   private history: HistoryRecord<SocketMessage>[] = [];
   private readonly clients: Record<string, SignalCallback<SocketMessage>> = {};
-  constructor(signalId: string) {
-    this.signalId = signalId;
+  constructor(lobbyId: string) {
+    this.lobbyId = lobbyId;
   }
 
   register(clientId: string, cb: SignalCallback<SocketMessage>) {
@@ -38,7 +38,7 @@ export class Group {
 
   health() {
     return {
-      signalId: this.signalId,
+      signalId: this.lobbyId,
       history: this.history,
       clients: Object.keys(this.clients),
     };

@@ -1,20 +1,20 @@
 import { SocketMessage } from "../types";
-import { Group } from "./group";
+import { LobbyManager } from "./lobbyManager";
 
-export class Communicator {
-  readonly signalId: string;
+export class LobbyConnection {
+  readonly lobbyId: string;
   readonly clientId: string;
-  private readonly group: Group;
+  private readonly group: LobbyManager;
   private readonly onLeave: () => void;
   private hasLeft = false;
   constructor(args: {
     clientId: string;
-    group: Group;
+    lobby: LobbyManager;
     onLeave: () => void;
   }) {
-    this.signalId = args.group.signalId;
+    this.lobbyId = args.lobby.lobbyId;
     this.clientId = args.clientId;
-    this.group = args.group;
+    this.group = args.lobby;
     this.onLeave = args.onLeave;
   }
 
