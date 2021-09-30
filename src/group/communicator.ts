@@ -1,14 +1,15 @@
+import { SocketMessage } from "../types";
 import { Group } from "./group";
 
-export class Communicator<T> {
+export class Communicator {
   readonly signalId: string;
   readonly clientId: string;
-  private readonly group: Group<T>;
+  private readonly group: Group;
   private readonly onLeave: () => void;
   private hasLeft = false;
   constructor(args: {
     clientId: string;
-    group: Group<T>;
+    group: Group;
     onLeave: () => void;
   }) {
     this.signalId = args.group.signalId;
@@ -17,7 +18,7 @@ export class Communicator<T> {
     this.onLeave = args.onLeave;
   }
 
-  broadcast(msg: T) {
+  broadcast(msg: SocketMessage) {
     if (this.hasLeft) { return; }
     return this.group.broadcast(this.clientId, msg);
   }

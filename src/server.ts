@@ -4,14 +4,13 @@ import WebSocketExpress, { Router } from 'websocket-express';
 import { Organizer } from './group';
 import { SocketManager } from './socket';
 import { RealClock } from './time';
-import { HandshakeData } from './types';
 
 export class Server {
   private app = new WebSocketExpress();
 
   constructor(updater: Updater) {
     const router = new Router();
-    const organizer = new Organizer<HandshakeData>();
+    const organizer = new Organizer();
     const manager = new SocketManager(organizer, RealClock);
 
     router.get('/', (req, res) => {

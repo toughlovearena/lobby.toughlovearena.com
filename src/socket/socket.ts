@@ -1,14 +1,14 @@
 import * as WebSocket from 'ws';
 import { Communicator, Organizer } from '../group';
 import { TimeKeeper } from '../time';
-import { HandshakeData } from '../types';
+import { MessageReg, SocketMessage } from '../types';
 
 export type CleanupSocket = (sc: SocketContainer) => void;
 
 export class SocketContainer {
   readonly clientId: string;
   private readonly socket: WebSocket;
-  private readonly registry: Organizer<HandshakeData>;
+  private readonly registry: Organizer;
   private readonly timeKeeper: TimeKeeper;
   private readonly createdAt: number;
   private updatedAt: number;
@@ -16,13 +16,13 @@ export class SocketContainer {
   static readonly TTL = 10 * 60 * 1000; // 10 minutes
 
   // stateful
-  private comm: Communicator<HandshakeData>;
+  private comm: Communicator;
   private pending: string[] = [];
 
   constructor(deps: {
     clientId: string;
     socket: WebSocket;
-    organizer: Organizer<HandshakeData>;
+    organizer: Organizer;
     timeKeeper: TimeKeeper;
     onCleanup: CleanupSocket;
   }) {
@@ -50,13 +50,13 @@ export class SocketContainer {
     }
   }
 
-  private send(data: HandshakeData) {
+  private send(data: SocketMessage) {
     this.updatedAt = this.timeKeeper.now();
     this.socket.send(JSON.stringify(data));
   }
   private receive(msg: string) {
     this.updatedAt = this.timeKeeper.now();
-    const data = JSON.parse(msg) as HandshakeData;
+    const data = JSON.parse(msg) as SocketMessage;
     if (data.type === 'register') {
       return this.register(data);
     }
@@ -65,7 +65,7 @@ export class SocketContainer {
       this.pending.push(msg);
       return;
     }
-    if (data.type === 'signal') {
+    if (data.type === 'data') {
       comm.broadcast(data);
       return;
     }
@@ -79,11 +79,11 @@ export class SocketContainer {
     this.socket.terminate();
     this.onCleanup(this);
   }
-  private register(data: HandshakeData): void {
+  private register(data: MessageReg): void {
     if (this.comm !== undefined) {
       throw new Error('signal already registered');
     }
-    const signalId = data.message;
+    const signalId = data.signalId;
     this.comm = this.registry.join({
       signalId,
       clientId: this.clientId,

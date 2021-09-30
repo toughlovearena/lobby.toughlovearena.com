@@ -1,14 +1,13 @@
 import * as WebSocket from 'ws';
 import { Organizer } from "../group";
 import { TimeKeeper } from '../time';
-import { HandshakeData } from '../types';
 import { SocketContainer } from "./socket";
 
 export class SocketManager {
   private clientTick = 0;
   private readonly sockets: Record<string, SocketContainer> = {};
   constructor(
-    private readonly organizer: Organizer<HandshakeData>,
+    private readonly organizer: Organizer,
     private readonly timeKeeper: TimeKeeper,
   ) { }
 

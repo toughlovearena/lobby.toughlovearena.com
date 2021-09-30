@@ -1,3 +1,5 @@
+import { SocketMessage } from "../types";
+
 export type SignalCallback<T> = (data: T) => void;
 
 interface HistoryRecord<T> {
@@ -5,15 +7,15 @@ interface HistoryRecord<T> {
   message: T;
 }
 
-export class Group<T> {
+export class Group {
   readonly signalId: string;
-  private history: HistoryRecord<T>[] = [];
-  private readonly clients: Record<string, SignalCallback<T>> = {};
+  private history: HistoryRecord<SocketMessage>[] = [];
+  private readonly clients: Record<string, SignalCallback<SocketMessage>> = {};
   constructor(signalId: string) {
     this.signalId = signalId;
   }
 
-  register(clientId: string, cb: SignalCallback<T>) {
+  register(clientId: string, cb: SignalCallback<SocketMessage>) {
     this.clients[clientId] = cb;
     this.history.forEach(record => cb(record.message));
   }
@@ -25,7 +27,7 @@ export class Group<T> {
     return Object.keys(this.clients).length === 0;
   }
 
-  broadcast(clientId: string, data: T) {
+  broadcast(clientId: string, data: SocketMessage) {
     this.history.push({ clientId, message: data, });
     Object.keys(this.clients).forEach(key => {
       if (key === clientId) { return; }

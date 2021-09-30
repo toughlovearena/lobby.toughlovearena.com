@@ -1,15 +1,16 @@
+import { SocketMessage } from "../types";
 import { Communicator } from "./communicator";
 import { Group, SignalCallback } from "./group";
 
-export class Organizer<T> {
-  private readonly lookup: Record<string, Group<T>> = {};
+export class Organizer {
+  private readonly lookup: Record<string, Group> = {};
 
   join(args: {
     signalId: string,
     clientId: string,
-    cb: SignalCallback<T>,
-  }): Communicator<T> {
-    this.lookup[args.signalId] = this.lookup[args.signalId] ?? new Group<T>(args.signalId);
+    cb: SignalCallback<SocketMessage>,
+  }): Communicator {
+    this.lookup[args.signalId] = this.lookup[args.signalId] ?? new Group(args.signalId);
     const group = this.lookup[args.signalId];
     group.register(args.clientId, args.cb);
     return new Communicator({
@@ -23,7 +24,7 @@ export class Organizer<T> {
   }
   private onCommLeave(args: {
     clientId: string,
-    group: Group<T>,
+    group: Group,
   }) {
     args.group.unregister(args.clientId);
     if (args.group.isEmpty()) {
