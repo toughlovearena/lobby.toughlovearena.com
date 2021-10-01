@@ -95,7 +95,7 @@ export class SocketContainer {
   health() {
     return {
       clientId: this.clientId,
-      group: this.comm?.lobbyId,
+      lobbyId: this.comm?.lobbyId,
       pending: this.pending,
       ageInSeconds: Math.ceil((this.timeKeeper.now() - this.updatedAt) / 1000),
     };

@@ -1,25 +1,25 @@
-import { LobbyRegistrar } from '../../lobby';
+import { ILobbyManager, LobbyManager } from '../../lobby';
 import { FakeTimeKeeper } from '../../__tests__/__mocks__/fakeTimeKeeper';
 import { SocketManager } from '../manager';
 import { SocketContainer } from '../socket';
 import { FakeSocket } from './__mocks__/fakeSocket';
 
 describe('socketManager', () => {
-  let lobbyRegistrar: LobbyRegistrar;
   let timeKeeper: FakeTimeKeeper;
+  let lobby: ILobbyManager;
   let sut: SocketManager;
 
   beforeEach(() => {
-    lobbyRegistrar = new LobbyRegistrar();
     timeKeeper = new FakeTimeKeeper();
-    sut = new SocketManager(lobbyRegistrar, timeKeeper);
+    lobby = new LobbyManager('lid', timeKeeper, () => { });
+    sut = new SocketManager(timeKeeper);
   });
 
   test('create()', () => {
     expect(sut.health().clients.length).toBe(0);
 
     const ws = new FakeSocket();
-    sut.create(ws._cast());
+    sut.create(ws._cast(), lobby);
     expect(sut.health().clients.length).toBe(1);
 
     ws._trigger('close');
@@ -30,7 +30,7 @@ describe('socketManager', () => {
     expect(sut.health().clients.length).toBe(0);
 
     const ws = new FakeSocket();
-    sut.create(ws._cast());
+    sut.create(ws._cast(), lobby);
     sut.checkAlive();
     expect(sut.health().clients.length).toBe(1);
 
