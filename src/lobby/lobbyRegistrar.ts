@@ -1,13 +1,5 @@
 import { TimeKeeper } from "../time";
-import { BroadcastCallback } from "../types";
 import { LobbyManager } from "./lobbyManager";
-
-export interface LobbyRegistrarJoinArgs {
-  lobby: LobbyManager;
-  clientId: string;
-  tag: string;
-  cb: BroadcastCallback;
-}
 
 export class LobbyRegistrar {
   private readonly lookup: Record<string, LobbyManager> = {};

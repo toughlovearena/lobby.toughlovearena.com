@@ -1,4 +1,5 @@
 import { BroadcastCallback, BroadcastMessage, BroadcastMods, MessageType } from '../../types';
+import { FakeTimeKeeper } from '../../__tests__/__mocks__/fakeTimeKeeper';
 import { LobbyManager, LobbyRegistrationArgs } from '../lobbyManager';
 import { EmptyCallback, genUploadMod } from './__mocks__/testHelpers';
 
@@ -11,29 +12,33 @@ describe('lobbyManager', () => {
     };
   }
   test('register()', () => {
-    const sut = new LobbyManager('signal');
+    const sut = new LobbyManager('signal', new FakeTimeKeeper(), () => { });
     expect(sut.health().clients.length).toBe(0);
 
+    const connA = sut.register(genLobbyRegistrationArgs('a'));
+    expect(sut.health().clients.length).toBe(1);
+
+    // idempotent
     sut.register(genLobbyRegistrationArgs('a'));
     expect(sut.health().clients.length).toBe(1);
 
-    sut.register(genLobbyRegistrationArgs('b'));
+    const connB = sut.register(genLobbyRegistrationArgs('b'));
     expect(sut.health().clients.length).toBe(2);
 
     // idempotent
     sut.register(genLobbyRegistrationArgs('b'));
     expect(sut.health().clients.length).toBe(2);
 
-    sut.unregister('a');
+    connA.leave();
     expect(sut.health().clients.length).toBe(1);
 
     // idempotent
-    sut.unregister('a');
+    connA.leave();
     expect(sut.health().clients.length).toBe(1);
   });
 
   test('uploadMod()', () => {
-    const sut = new LobbyManager('signal');
+    const sut = new LobbyManager('signal', new FakeTimeKeeper(), () => { });
 
     let aInbox: BroadcastMessage[] = [];
     sut.register(genLobbyRegistrationArgs('a', msg => aInbox.push(msg)));
@@ -62,7 +67,7 @@ describe('lobbyManager', () => {
   });
 
   test('receive all state on register', () => {
-    const sut = new LobbyManager('signal');
+    const sut = new LobbyManager('signal', new FakeTimeKeeper(), () => { });
 
     const aInbox: BroadcastMessage[] = [];
     sut.register(genLobbyRegistrationArgs('a', msg => aInbox.push(msg)));
