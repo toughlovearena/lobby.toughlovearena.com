@@ -54,7 +54,7 @@ export class LobbyManager implements ILobbyManager {
     });
 
     args.cb(this.getSettings());
-    args.cb(this.getPlayers());
+    this.broadcast(this.getPlayers());
     args.cb(this.getMods());
   }
   unregister(clientId: string) {
@@ -112,19 +112,19 @@ export class LobbyManager implements ILobbyManager {
   private getSettings(): BroadcastSettings {
     return {
       type: MessageType.BroadcastSettings,
-      state: this.state.settings,
+      state: { ...this.state.settings },
     };
   }
   private getPlayers(): BroadcastPlayers {
     return {
       type: MessageType.BroadcastPlayers,
-      state: this.state.players,
+      state: [...this.state.players],
     };
   }
   private getMods(): BroadcastMods {
     return {
       type: MessageType.BroadcastMods,
-      state: this.state.mods,
+      state: [...this.state.mods],
     };
   }
   private broadcast(msg: BroadcastMessage) {

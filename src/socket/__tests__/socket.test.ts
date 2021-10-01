@@ -120,13 +120,15 @@ describe('socket', () => {
       timeKeeper,
       onCleanup: () => { },
     });
+
     ws2._trigger('message', JSON.stringify(registerData));
+    expect(ws._sent.length).toEqual(4);
     expect(ws2._sent.length).toEqual(3);
     ws2._trigger('message', JSON.stringify(signalData1));
-    expect(ws._sent.slice(3)).toStrictEqual([JSON.stringify(broadcast1)]);
+    expect(ws._sent.slice(4)).toStrictEqual([JSON.stringify(broadcast1)]);
     expect(ws2._sent.slice(3)).toStrictEqual([JSON.stringify(broadcast1)]);
     ws2._trigger('message', JSON.stringify(signalData2));
-    expect(ws._sent.slice(3)).toStrictEqual([JSON.stringify(broadcast1), JSON.stringify(broadcast2)]);
+    expect(ws._sent.slice(4)).toStrictEqual([JSON.stringify(broadcast1), JSON.stringify(broadcast2)]);
     expect(ws2._sent.slice(3)).toStrictEqual([JSON.stringify(broadcast1), JSON.stringify(broadcast2)]);
   });
 
