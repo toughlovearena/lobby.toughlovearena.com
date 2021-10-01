@@ -2,15 +2,17 @@ import { SignalCallback, SocketMessage } from "../types";
 import { LobbyConnection } from "./lobbyConn";
 import { LobbyManager } from "./lobbyManager";
 
+export interface LobbyRegistrarJoinArgs {
+  lobbyId: string;
+  clientId: string;
+  tag: string;
+  cb: SignalCallback<SocketMessage>;
+}
+
 export class LobbyRegistrar {
   private readonly lookup: Record<string, LobbyManager> = {};
 
-  join(args: {
-    lobbyId: string;
-    clientId: string;
-    tag: string;
-    cb: SignalCallback<SocketMessage>;
-  }): LobbyConnection {
+  join(args: LobbyRegistrarJoinArgs): LobbyConnection {
     this.lookup[args.lobbyId] = this.lookup[args.lobbyId] ?? new LobbyManager(args.lobbyId);
     const lobby = this.lookup[args.lobbyId];
     lobby.register(args);

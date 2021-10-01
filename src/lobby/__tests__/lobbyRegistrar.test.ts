@@ -1,52 +1,41 @@
-// import { LobbyRegistrar } from '..';
-// import { EmptyCallback } from './__mocks__/testHelpers';
+import { LobbyRegistrar, LobbyRegistrarJoinArgs } from '..';
+import { SignalCallback, SocketMessage } from '../../types';
+import { EmptyCallback } from './__mocks__/testHelpers';
 
 describe('lobbyRegistrar', () => {
+  function genLobbyRegistrarJoinArgs(lid: string, slug: string, cb?: SignalCallback<SocketMessage>): LobbyRegistrarJoinArgs {
+    return {
+      lobbyId: lid,
+      clientId: slug,
+      tag: 'tag-' + slug,
+      cb: cb ?? EmptyCallback,
+    };
+  }
   test('join() is idempotent', () => {
-    //   const sut = new LobbyRegistrar();
-    //   expect(sut.health().length).toBe(0);
+    const sut = new LobbyRegistrar();
+    expect(sut.health().length).toBe(0);
 
-    //   sut.join({
-    //     lobbyId: 'a',
-    //     clientId: 'c1',
-    //     cb: EmptyCallback,
-    //   });
-    //   expect(sut.health().length).toBe(1);
-    //   sut.join({
-    //     lobbyId: 'b',
-    //     clientId: 'c2',
-    //     cb: EmptyCallback,
-    //   });
-    //   expect(sut.health().length).toBe(2);
-    //   sut.join({
-    //     lobbyId: 'a',
-    //     clientId: 'c3',
-    //     cb: EmptyCallback,
-    //   });
-    //   expect(sut.health().length).toBe(2);
-    // });
+    sut.join(genLobbyRegistrarJoinArgs('a', 'c1'));
+    expect(sut.health().length).toBe(1);
+    sut.join(genLobbyRegistrarJoinArgs('b', 'c2'));
+    expect(sut.health().length).toBe(2);
+    sut.join(genLobbyRegistrarJoinArgs('a', 'c3'));
+    expect(sut.health().length).toBe(2);
+  });
 
-    // test('leave() removes empty rooms', () => {
-    //   const sut = new LobbyRegistrar();
-    //   expect(sut.health().length).toBe(0);
-    //   const comm1 = sut.join({
-    //     lobbyId: 'a',
-    //     clientId: 'c1',
-    //     cb: EmptyCallback,
-    //   });
-    //   const comm2 = sut.join({
-    //     lobbyId: 'a',
-    //     clientId: 'c2',
-    //     cb: EmptyCallback,
-    //   });
-    //   expect(sut.health().length).toBe(1);
-    //   expect(sut.health()[0].clients.length).toBe(2);
+  test('leave() removes empty rooms', () => {
+    const sut = new LobbyRegistrar();
+    expect(sut.health().length).toBe(0);
+    const comm1 = sut.join(genLobbyRegistrarJoinArgs('a', 'c1'));
+    const comm2 = sut.join(genLobbyRegistrarJoinArgs('a', 'c2'));
+    expect(sut.health().length).toBe(1);
+    expect(sut.health()[0].clients.length).toBe(2);
 
-    //   comm1.leave();
-    //   expect(sut.health().length).toBe(1);
-    //   expect(sut.health()[0].clients.length).toBe(1);
+    comm1.leave();
+    expect(sut.health().length).toBe(1);
+    expect(sut.health()[0].clients.length).toBe(1);
 
-    //   comm2.leave();
-    //   expect(sut.health().length).toBe(0);
+    comm2.leave();
+    expect(sut.health().length).toBe(0);
   });
 });
