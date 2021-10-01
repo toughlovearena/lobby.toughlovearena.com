@@ -25,13 +25,16 @@ export class LobbyRegistrar {
     }
   }
   // todo cron to get orphans?
-  pruneAll() {
+  pruneAll(): number {
     const keys = Object.keys(this.lookup);
+    let pruned = 0;
     keys.forEach(lobbyId => {
       if (this.lookup[lobbyId]?.isDead()) {
         delete this.lookup[lobbyId];
+        pruned++;
       }
-    })
+    });
+    return pruned;
   }
 
   health() {

@@ -18,14 +18,6 @@ describe('lobbyManager', () => {
     const connA = sut.register(genLobbyRegistrationArgs('a'));
     expect(sut.health().clients.length).toBe(1);
 
-    // idempotent
-    sut.register(genLobbyRegistrationArgs('a'));
-    expect(sut.health().clients.length).toBe(1);
-
-    const connB = sut.register(genLobbyRegistrationArgs('b'));
-    expect(sut.health().clients.length).toBe(2);
-
-    // idempotent
     sut.register(genLobbyRegistrationArgs('b'));
     expect(sut.health().clients.length).toBe(2);
 
@@ -35,6 +27,16 @@ describe('lobbyManager', () => {
     // idempotent
     connA.leave();
     expect(sut.health().clients.length).toBe(1);
+  });
+
+  test('register() twice errors', () => {
+    const sut = new LobbyManager('signal', new FakeTimeKeeper(), () => { });
+    expect(sut.health().clients.length).toBe(0);
+
+    sut.register(genLobbyRegistrationArgs('a'));
+    expect(sut.health().clients.length).toBe(1);
+
+    expect(() => sut.register(genLobbyRegistrationArgs('a'))).toThrow();
   });
 
   test('uploadMod()', () => {

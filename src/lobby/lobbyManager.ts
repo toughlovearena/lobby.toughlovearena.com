@@ -47,6 +47,9 @@ export class LobbyManager implements ILobbyManager {
   }
 
   register(args: LobbyRegistrationArgs) {
+    if (this.clients[args.clientId]) {
+      throw new Error('cannot register twice');
+    }
     this.clients[args.clientId] = args.cb;
 
     if (this.state.players.length === 0) {

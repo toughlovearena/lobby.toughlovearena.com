@@ -12,6 +12,42 @@ describe('lobbyRegistrar', () => {
     };
   }
 
+  test('create() and get()', async () => {
+    const tk = new FakeTimeKeeper();
+    const sut = new LobbyRegistrar(tk);
+    expect(sut.health().length).toBe(0);
+
+    expect(sut.get('dne')).toBeUndefined();
+    const created = await sut.create();
+    expect(sut.health().length).toBe(1);
+
+    const actual = sut.get(created.lobbyId);
+    expect(actual).toBeTruthy();
+    expect(actual).toEqual(created);
+  });
+
+  test('pruneAll()', async () => {
+    const tk = new FakeTimeKeeper();
+    const sut = new LobbyRegistrar(tk);
+
+    expect(sut.pruneAll()).toBe(0);
+    expect(sut.health().length).toBe(0);
+
+    const created = await sut.create();
+    expect(sut.health().length).toBe(1);
+
+    expect(sut.pruneAll()).toBe(0);
+    expect(sut.health().length).toBe(1);
+
+    tk._increment(created.TTL);
+    expect(sut.pruneAll()).toBe(0);
+    expect(sut.health().length).toBe(1);
+
+    tk._increment(1);
+    expect(sut.pruneAll()).toBe(1);
+    expect(sut.health().length).toBe(0);
+  });
+
   test('leave() removes empty rooms', async () => {
     const tk = new FakeTimeKeeper();
     const sut = new LobbyRegistrar(tk);
