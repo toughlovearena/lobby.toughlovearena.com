@@ -22,9 +22,11 @@ export interface LobbyState {
 
 export enum MessageType {
   Register = 'register',
+  BroadcastSettings = 'broadcastSettings',
+  BroadcastPlayers = 'broadcastPlayers',
+  BroadcastMods = 'broadcastMods',
   UpdateStatus = 'updateStatus',
   HostUpdateSettings = 'updateSettings',
-  BroadcastState = 'broadcastState',
   UploadMod = 'uploadMod',
   HostRemoveMod = 'removeMod',
   Error = 'error',
@@ -35,6 +37,18 @@ export interface MessageReg {
   lobbyId: string;
   tag: string;
 }
+export interface BroadcastSettings {
+  type: MessageType.BroadcastSettings;
+  state: StateSettings;
+}
+export interface BroadcastPlayers {
+  type: MessageType.BroadcastPlayers;
+  state: LobbyPlayerState[];
+}
+export interface BroadcastMods {
+  type: MessageType.BroadcastMods;
+  state: LobbyModState[];
+}
 export interface UpdateStatus {
   type: MessageType.UpdateStatus;
   status: LobbyPlayerStatus;
@@ -42,10 +56,6 @@ export interface UpdateStatus {
 export interface HostUpdateSettings {
   type: MessageType.HostUpdateSettings;
   patch: SettingsPatch;
-}
-export interface BroadcastState {
-  type: MessageType.BroadcastState;
-  state: LobbyState;
 }
 export interface UploadMod {
   type: MessageType.UploadMod;
@@ -63,11 +73,16 @@ export interface MessageTest {
   type: MessageType.Test;
   data: string;
 }
+export type BroadcastMessage = (
+  BroadcastSettings |
+  BroadcastPlayers |
+  BroadcastMods
+);
 export type SocketMessage = (
   MessageReg |
+  BroadcastMessage |
   UpdateStatus |
   HostUpdateSettings |
-  BroadcastState |
   UploadMod |
   HostRemoveMod |
   MessageError |

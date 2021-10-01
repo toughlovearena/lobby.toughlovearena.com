@@ -1,4 +1,4 @@
-import { BroadcastState, LobbyModState, LobbyPlayerStatus, LobbyState, MessageType, SettingsPatch, SignalCallback, SocketMessage } from "../types";
+import { BroadcastMessage, BroadcastMods, BroadcastPlayers, BroadcastSettings, LobbyModState, LobbyPlayerStatus, LobbyState, MessageType, SettingsPatch, SignalCallback, SocketMessage } from "../types";
 
 const LobbyStateHostIdKey = 'hostId';
 export class LobbyManager {
@@ -29,7 +29,9 @@ export class LobbyManager {
       tag: args.tag,
     });
 
-    args.cb(this.getState());
+    args.cb(this.getSettings());
+    args.cb(this.getPlayers());
+    args.cb(this.getMods());
   }
   unregister(clientId: string) {
     delete this.clients[clientId];
@@ -37,9 +39,10 @@ export class LobbyManager {
     this.state.players = this.state.players.filter(p => p.clientId !== clientId);
     if (this.state.settings[LobbyStateHostIdKey] === clientId) {
       this.state.settings[LobbyStateHostIdKey] = this.state.players[0]?.clientId ?? 'n/a';
+      this.broadcast(this.getSettings());
     }
 
-    this.broadcast(this.getState());
+    this.broadcast(this.getPlayers());
   }
   isEmpty() {
     return Object.keys(this.clients).length === 0;
@@ -54,14 +57,14 @@ export class LobbyManager {
       ...this.state.settings,
       ...patch,
     };
-    this.broadcast(this.getState());
+    this.broadcast(this.getSettings());
   }
   hostRemoveMod(clientId: string, modId: string) {
     if (clientId !== this.state.settings[LobbyStateHostIdKey]) {
       throw new Error('only the host can do this');
     }
     this.state.mods = this.state.mods.filter(p => p.modId !== modId);
-    this.broadcast(this.getState());
+    this.broadcast(this.getMods());
   }
 
   // public
@@ -75,21 +78,32 @@ export class LobbyManager {
       ...this.state.players.filter(p => p.clientId !== clientId),
       player
     ];
-    this.broadcast(this.getState());
+    this.broadcast(this.getPlayers());
   }
   uploadMod(mod: LobbyModState) {
     this.state.mods.push(mod);
-    this.broadcast(this.getState());
+    this.broadcast(this.getMods());
   }
 
-  private getState(): BroadcastState {
+  private getSettings(): BroadcastSettings {
     return {
-      type: MessageType.BroadcastState,
-      state: this.state,
+      type: MessageType.BroadcastSettings,
+      state: this.state.settings,
     };
   }
-  // todo replace all usages with more granular broadcasts
-  private broadcast(msg: SocketMessage) {
+  private getPlayers(): BroadcastPlayers {
+    return {
+      type: MessageType.BroadcastPlayers,
+      state: this.state.players,
+    };
+  }
+  private getMods(): BroadcastMods {
+    return {
+      type: MessageType.BroadcastMods,
+      state: this.state.mods,
+    };
+  }
+  private broadcast(msg: BroadcastMessage) {
     Object.keys(this.clients).forEach(key => {
       this.clients[key](msg);
     });
