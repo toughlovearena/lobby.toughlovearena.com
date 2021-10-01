@@ -1,5 +1,5 @@
+import { ILobbyManager, LobbyConnection, LobbyManagerHealth, LobbyRegistrationArgs } from "../..";
 import { BroadcastCallback, LobbyModState, LobbyPlayerStatus, MessageType, SendUploadMod, SettingsPatch } from "../../../types";
-import { ILobbyManager, LobbyManagerHealth, LobbyRegistrationArgs } from "../../lobbyManager";
 
 export const EmptyCallback: BroadcastCallback = () => {
   // do nothing
@@ -18,15 +18,13 @@ export function genUploadMod(slug: string): SendUploadMod {
 export class FakeLobbyManager implements ILobbyManager {
 
   readonly _register: LobbyRegistrationArgs[] = [];
-  register(args: LobbyRegistrationArgs) {
+  register(args: LobbyRegistrationArgs): LobbyConnection {
     this._register.push(args);
+    return null;
   }
-  readonly _unregister: string[] = [];
-  unregister(clientId: string) {
-    this._unregister.push(clientId);
-  }
-  isEmpty() {
-    return this._register.length === this._unregister.length;
+  _isDead: boolean;
+  isDead() {
+    return this._isDead;
   }
 
   // host only

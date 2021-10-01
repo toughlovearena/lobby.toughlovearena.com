@@ -1,3 +1,5 @@
+import { LobbyConnection } from ".";
+import { TimeKeeper } from "../time";
 import { BroadcastCallback, BroadcastMessage, BroadcastMods, BroadcastPlayers, BroadcastSettings, LobbyModState, LobbyPlayerStatus, LobbyState, MessageType, SettingsPatch } from "../types";
 
 export interface LobbyRegistrationArgs {
@@ -12,10 +14,8 @@ export interface LobbyManagerHealth {
 }
 
 export interface ILobbyManager {
-  register(args: LobbyRegistrationArgs): void;
-
-  unregister(clientId: string): void;
-  isEmpty(): boolean;
+  register(args: LobbyRegistrationArgs): LobbyConnection;
+  isDead(): boolean;
 
   // host only
   hostUpdateSettings(clientId: string, patch: SettingsPatch): void;
@@ -30,15 +30,20 @@ export interface ILobbyManager {
 
 const LobbyStateHostIdKey = 'hostId';
 export class LobbyManager implements ILobbyManager {
-  readonly lobbyId: string;
+  readonly TTL = 30 * 1000; // 30s
+  private createdAt: number;
   private state: LobbyState = {
     settings: {},
     players: [],
     mods: [],
   };
   private readonly clients: Record<string, BroadcastCallback> = {};
-  constructor(lobbyId: string) {
-    this.lobbyId = lobbyId;
+  constructor(
+    readonly lobbyId: string,
+    private readonly timeKeeper: TimeKeeper,
+    private readonly onUserLeave: () => void,
+  ) {
+    this.createdAt = this.timeKeeper.now();
   }
 
   register(args: LobbyRegistrationArgs) {
@@ -56,8 +61,15 @@ export class LobbyManager implements ILobbyManager {
     args.cb(this.getSettings());
     this.broadcast(this.getPlayers());
     args.cb(this.getMods());
+
+    return new LobbyConnection({
+      clientId: args.clientId,
+      lobby: this,
+      cb: args.cb,
+      onLeave: () => this.unregister(args.clientId),
+    });
   }
-  unregister(clientId: string) {
+  private unregister(clientId: string) {
     delete this.clients[clientId];
 
     this.state.players = this.state.players.filter(p => p.clientId !== clientId);
@@ -67,9 +79,14 @@ export class LobbyManager implements ILobbyManager {
     }
 
     this.broadcast(this.getPlayers());
+
+    this.onUserLeave();
   }
-  isEmpty() {
-    return Object.keys(this.clients).length === 0;
+  isDead() {
+    return (
+      (Object.keys(this.clients).length === 0) &&
+      (this.timeKeeper.now() > this.createdAt + this.TTL)
+    );
   }
 
   // host only

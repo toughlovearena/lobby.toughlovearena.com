@@ -10,8 +10,8 @@ export class Server {
 
   constructor(updater: Updater) {
     const router = new Router();
-    const lobbyRegistrar = new LobbyRegistrar();
-    const manager = new SocketManager(lobbyRegistrar, RealClock);
+    const lobbyRegistrar = new LobbyRegistrar(RealClock);
+    const socketManager = new SocketManager(RealClock);
 
     router.get('/', (req, res) => {
       res.redirect('/health');
@@ -22,16 +22,24 @@ export class Server {
         gitHash,
         started: new Date(updater.startedAt),
         testVer: 3,
-        sockets: manager.health(),
-        organizer: lobbyRegistrar.health(),
+        lobbies: lobbyRegistrar.health(),
+        sockets: socketManager.health(),
       };
       res.send(data);
     });
+    router.post('/create', async (req, res) => {
+      // todo
+    });
 
     // ws
-    router.ws('/connect', async (req, res) => {
+    router.ws('/connect/:lobbyId', async (req, res) => {
+      const { lobbyId } = req.params;
+      const lobby = lobbyRegistrar.get(lobbyId);
+      if (!lobby) {
+        return res.sendError(404);
+      }
       const ws = await res.accept();
-      manager.create(ws);
+      socketManager.create(ws, lobby);
     });
 
     this.app.use(cors());
@@ -41,7 +49,7 @@ export class Server {
     // cron
     const period = 30 * 1000; // 30 seconds
     setInterval(() => {
-      manager.checkAlive();
+      socketManager.checkAlive();
     }, period);
   }
 

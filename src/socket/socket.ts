@@ -1,5 +1,5 @@
 import * as WebSocket from 'ws';
-import { LobbyConnection, LobbyRegistrar } from '../lobby';
+import { ILobbyManager, LobbyConnection } from '../lobby';
 import { TimeKeeper } from '../time';
 import { BroadcastMessage, ClientMessage, MessageType, SendRegister } from '../types';
 
@@ -8,7 +8,7 @@ export type CleanupSocket = (sc: SocketContainer) => void;
 export class SocketContainer {
   readonly clientId: string;
   private readonly socket: WebSocket;
-  private readonly lobbyRegistrar: LobbyRegistrar;
+  private readonly lobby: ILobbyManager;
   private readonly timeKeeper: TimeKeeper;
   private readonly createdAt: number;
   private updatedAt: number;
@@ -22,13 +22,13 @@ export class SocketContainer {
   constructor(deps: {
     clientId: string;
     socket: WebSocket;
-    lobbyRegistrar: LobbyRegistrar;
+    lobby: ILobbyManager;
     timeKeeper: TimeKeeper;
     onCleanup: CleanupSocket;
   }) {
     this.clientId = deps.clientId;
     this.socket = deps.socket;
-    this.lobbyRegistrar = deps.lobbyRegistrar;
+    this.lobby = deps.lobby;
     this.timeKeeper = deps.timeKeeper;
     this.onCleanup = deps.onCleanup;
 
@@ -79,8 +79,7 @@ export class SocketContainer {
     if (this.comm !== undefined) {
       throw new Error('signal already registered');
     }
-    this.comm = this.lobbyRegistrar.join({
-      lobbyId: data.lobbyId,
+    this.comm = this.lobby.register({
       clientId: this.clientId,
       tag: data.tag,
       cb: cbdata => this.send(cbdata),

@@ -1,5 +1,5 @@
 import * as WebSocket from 'ws';
-import { LobbyRegistrar } from "../lobby";
+import { ILobbyManager } from "../lobby";
 import { TimeKeeper } from '../time';
 import { SocketContainer } from "./socket";
 
@@ -7,15 +7,14 @@ export class SocketManager {
   private clientTick = 0;
   private readonly sockets: Record<string, SocketContainer> = {};
   constructor(
-    private readonly organizer: LobbyRegistrar,
     private readonly timeKeeper: TimeKeeper,
   ) { }
 
-  create(ws: WebSocket) {
+  create(ws: WebSocket, lobby: ILobbyManager) {
     const socketContainer = new SocketContainer({
       clientId: (this.clientTick++).toString(),
       socket: ws,
-      lobbyRegistrar: this.organizer,
+      lobby,
       timeKeeper: this.timeKeeper,
       onCleanup: sc => this.onSocketCleanup(sc),
     });
