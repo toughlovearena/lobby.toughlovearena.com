@@ -21,21 +21,15 @@ export interface LobbyState {
 }
 
 export enum MessageType {
-  Register = 'register',
   BroadcastSettings = 'broadcastSettings',
   BroadcastPlayers = 'broadcastPlayers',
   BroadcastMods = 'broadcastMods',
-  UpdateStatus = 'updateStatus',
-  HostUpdateSettings = 'updateSettings',
-  UploadMod = 'uploadMod',
-  HostRemoveMod = 'removeMod',
-  Error = 'error',
-  Test = 'test',
-}
-export interface MessageReg {
-  type: MessageType.Register;
-  lobbyId: string;
-  tag: string;
+  SendRegister = 'register',
+  SendUpdateStatus = 'updateStatus',
+  SendHostUpdateSettings = 'updateSettings',
+  SendUploadMod = 'uploadMod',
+  SendHostRemoveMod = 'removeMod',
+  ReplyError = 'error',
 }
 export interface BroadcastSettings {
   type: MessageType.BroadcastSettings;
@@ -49,29 +43,30 @@ export interface BroadcastMods {
   type: MessageType.BroadcastMods;
   state: LobbyModState[];
 }
-export interface UpdateStatus {
-  type: MessageType.UpdateStatus;
+export interface SendRegister {
+  type: MessageType.SendRegister;
+  lobbyId: string;
+  tag: string;
+}
+export interface SendUpdateStatus {
+  type: MessageType.SendUpdateStatus;
   status: LobbyPlayerStatus;
 }
-export interface HostUpdateSettings {
-  type: MessageType.HostUpdateSettings;
+export interface SendHostUpdateSettings {
+  type: MessageType.SendHostUpdateSettings;
   patch: SettingsPatch;
 }
-export interface UploadMod {
-  type: MessageType.UploadMod;
+export interface SendUploadMod {
+  type: MessageType.SendUploadMod;
   data: LobbyModState;
 }
-export interface HostRemoveMod {
-  type: MessageType.HostRemoveMod;
+export interface SendHostRemoveMod {
+  type: MessageType.SendHostRemoveMod;
   modId: string;
 }
-export interface MessageError {
-  type: MessageType.Error;
+export interface ReplyError {
+  type: MessageType.ReplyError;
   message: string;
-}
-export interface MessageTest {
-  type: MessageType.Test;
-  data: string;
 }
 export type BroadcastMessage = (
   BroadcastSettings |
@@ -79,14 +74,13 @@ export type BroadcastMessage = (
   BroadcastMods
 );
 export type SocketMessage = (
-  MessageReg |
+  SendRegister |
   BroadcastMessage |
-  UpdateStatus |
-  HostUpdateSettings |
-  UploadMod |
-  HostRemoveMod |
-  MessageError |
-  MessageTest
+  SendUpdateStatus |
+  SendHostUpdateSettings |
+  SendUploadMod |
+  SendHostRemoveMod |
+  ReplyError
 );
 
 export type SignalCallback<T> = (data: T) => void;

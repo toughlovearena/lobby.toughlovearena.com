@@ -1,5 +1,5 @@
 import { LobbyRegistrar } from '../../lobby';
-import { BroadcastMods, MessageReg, MessageType, SocketMessage, UploadMod } from '../../types';
+import { BroadcastMods, MessageType, SendRegister, SendUploadMod, SocketMessage } from '../../types';
 import { FakeTimeKeeper } from '../../__tests__/__mocks__/fakeTimeKeeper';
 import { SocketContainer } from '../socket';
 import { FakeSocket } from './__mocks__/fakeSocket';
@@ -16,21 +16,21 @@ describe('socket', () => {
   }
   const clientId = 'c1';
   const lobbyId = 's1';
-  const registerData: MessageReg = {
-    type: MessageType.Register,
+  const registerData: SendRegister = {
+    type: MessageType.SendRegister,
     lobbyId: lobbyId,
     tag: 'tag1',
   };
-  const signalData1: UploadMod = {
-    type: MessageType.UploadMod,
+  const signalData1: SendUploadMod = {
+    type: MessageType.SendUploadMod,
     data: { modId: 'id1', configJson: 'data1', },
   };
-  const signalData2: UploadMod = {
-    type: MessageType.UploadMod,
+  const signalData2: SendUploadMod = {
+    type: MessageType.SendUploadMod,
     data: { modId: 'id2', configJson: 'data2', },
   };
-  const signalData3: UploadMod = {
-    type: MessageType.UploadMod,
+  const signalData3: SendUploadMod = {
+    type: MessageType.SendUploadMod,
     data: { modId: 'id3', configJson: 'data3', },
   };
   function getLobbySnapshot() {

@@ -1,7 +1,7 @@
 import * as WebSocket from 'ws';
 import { LobbyConnection, LobbyRegistrar } from '../lobby';
 import { TimeKeeper } from '../time';
-import { MessageReg, MessageType, SocketMessage } from '../types';
+import { MessageType, SendRegister, SocketMessage } from '../types';
 
 export type CleanupSocket = (sc: SocketContainer) => void;
 
@@ -57,7 +57,7 @@ export class SocketContainer {
   private receive(msg: string) {
     this.updatedAt = this.timeKeeper.now();
     const data = JSON.parse(msg) as SocketMessage;
-    if (data.type === MessageType.Register) {
+    if (data.type === MessageType.SendRegister) {
       return this.register(data);
     }
     const { comm } = this;
@@ -75,7 +75,7 @@ export class SocketContainer {
     this.socket.terminate();
     this.onCleanup(this);
   }
-  private register(data: MessageReg): void {
+  private register(data: SendRegister): void {
     if (this.comm !== undefined) {
       throw new Error('signal already registered');
     }

@@ -1,4 +1,4 @@
-import { MessageError, MessageType, SignalCallback, SocketMessage } from "../types";
+import { MessageType, ReplyError, SignalCallback, SocketMessage } from "../types";
 import { ILobbyManager, LobbyManager } from "./lobbyManager";
 
 export class LobbyConnection {
@@ -24,22 +24,22 @@ export class LobbyConnection {
   handleMessage(msg: SocketMessage) {
     if (this.hasLeft) { return; }
     try {
-      if (msg.type === MessageType.UpdateStatus) {
+      if (msg.type === MessageType.SendUpdateStatus) {
         return this.lobby.updateStatus(this.clientId, msg.status);
       }
-      if (msg.type === MessageType.HostUpdateSettings) {
+      if (msg.type === MessageType.SendHostUpdateSettings) {
         return this.lobby.hostUpdateSettings(this.clientId, msg.patch);
       }
-      if (msg.type === MessageType.UploadMod) {
+      if (msg.type === MessageType.SendUploadMod) {
         return this.lobby.uploadMod(msg.data);
       }
-      if (msg.type === MessageType.HostRemoveMod) {
+      if (msg.type === MessageType.SendHostRemoveMod) {
         return this.lobby.hostRemoveMod(this.clientId, msg.modId);
       }
       throw new Error('unsupported type: ' + msg.type);
     } catch (err) {
-      const msgErr: MessageError = {
-        type: MessageType.Error,
+      const msgErr: ReplyError = {
+        type: MessageType.ReplyError,
         message: (err as Error).message,
       };
       this.cb(msgErr);

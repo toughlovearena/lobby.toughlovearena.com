@@ -1,10 +1,9 @@
-import { HostRemoveMod, HostUpdateSettings, LobbyPlayerStatus, MessageReg, MessageType, SocketMessage, UpdateStatus, UploadMod } from '../../types';
+import { LobbyPlayerStatus, MessageType, SendHostRemoveMod, SendHostUpdateSettings, SendRegister, SendUpdateStatus, SendUploadMod, SocketMessage } from '../../types';
 import { LobbyConnection } from '../lobbyConn';
 import { LobbyManager } from '../lobbyManager';
 import { FakeLobbyManager, genUploadMod } from './__mocks__/testHelpers';
 
 describe('LobbyConnection', () => {
-
   let fakeLobby: FakeLobbyManager;
   let leaveCount: number;
   let inbox: SocketMessage[];
@@ -23,29 +22,29 @@ describe('LobbyConnection', () => {
   });
 
   test('handleMessage passes through to LobbyManager', () => {
-    const updateStatus: UpdateStatus = {
-      type: MessageType.UpdateStatus,
+    const updateStatus: SendUpdateStatus = {
+      type: MessageType.SendUpdateStatus,
       status: LobbyPlayerStatus.Spectate,
     };
     sut.handleMessage(updateStatus);
     expect(fakeLobby._updateStatus).toStrictEqual([updateStatus.status]);
 
-    const hostUpdateSettings: HostUpdateSettings = {
-      type: MessageType.HostUpdateSettings,
+    const hostUpdateSettings: SendHostUpdateSettings = {
+      type: MessageType.SendHostUpdateSettings,
       patch: {},
     };
     sut.handleMessage(hostUpdateSettings);
     expect(fakeLobby._hostUpdateSettings).toStrictEqual([hostUpdateSettings.patch]);
 
-    const uploadMod: UploadMod = {
-      type: MessageType.UploadMod,
+    const uploadMod: SendUploadMod = {
+      type: MessageType.SendUploadMod,
       data: { modId: 'dne', configJson: 'json', },
     };
     sut.handleMessage(uploadMod);
     expect(fakeLobby._uploadMod).toStrictEqual([uploadMod.data]);
 
-    const hostRemoveMod: HostRemoveMod = {
-      type: MessageType.HostRemoveMod,
+    const hostRemoveMod: SendHostRemoveMod = {
+      type: MessageType.SendHostRemoveMod,
       modId: 'dne',
     };
     sut.handleMessage(hostRemoveMod);
@@ -53,14 +52,14 @@ describe('LobbyConnection', () => {
   });
 
   test('handleMessage sends error when type is unsupported', () => {
-    const badMessage: MessageReg = {
-      type: MessageType.Register,
+    const badMessage: SendRegister = {
+      type: MessageType.SendRegister,
       lobbyId: 'l1',
       tag: 't1',
     };
     sut.handleMessage(badMessage);
     expect(inbox.length).toBe(1);
-    expect(inbox[0].type).toBe(MessageType.Error);
+    expect(inbox[0].type).toBe(MessageType.ReplyError);
   });
 
   test('handleMessage stops working after leave() is called', () => {

@@ -1,20 +1,13 @@
-import { LobbyModState, LobbyPlayerStatus, MessageType, SettingsPatch, SignalCallback, SocketMessage, UploadMod } from "../../../types";
+import { LobbyModState, LobbyPlayerStatus, MessageType, SendUploadMod, SettingsPatch, SignalCallback } from "../../../types";
 import { ILobbyManager, LobbyManagerHealth, LobbyRegistrationArgs } from "../../lobbyManager";
 
 export const EmptyCallback: SignalCallback<any> = () => {
   // do nothing
 };
 
-export function makeMsg(message: string): SocketMessage {
+export function genUploadMod(slug: string): SendUploadMod {
   return {
-    type: MessageType.Test,
-    data: message,
-  };
-}
-
-export function genUploadMod(slug: string): UploadMod {
-  return {
-    type: MessageType.UploadMod,
+    type: MessageType.SendUploadMod,
     data: {
       modId: slug,
       configJson: 'json-' + slug,
