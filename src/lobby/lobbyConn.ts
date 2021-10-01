@@ -24,13 +24,16 @@ export class LobbyConnection {
   handleMessage(msg: SocketMessage) {
     if (this.hasLeft) { return; }
     try {
-      if (msg.type === MessageType.UpdateState) {
+      if (msg.type === MessageType.UpdateStatus) {
+        return this.lobby.updateStatus(this.clientId, msg.status);
+      }
+      if (msg.type === MessageType.HostUpdateSettings) {
         return this.lobby.hostUpdateSettings(this.clientId, msg.patch);
       }
       if (msg.type === MessageType.UploadMod) {
         return this.lobby.uploadMod(msg.data);
       }
-      if (msg.type === MessageType.RemoveMod) {
+      if (msg.type === MessageType.HostRemoveMod) {
         return this.lobby.hostRemoveMod(this.clientId, msg.modId);
       }
       throw new Error('unsupported type: ' + msg.type);

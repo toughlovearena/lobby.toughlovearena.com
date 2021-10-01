@@ -1,4 +1,4 @@
-import { BroadcastState, LobbyModState, LobbyPlayerStatus, LobbyState, MessageType, SignalCallback, SocketMessage, StatePatch } from "../types";
+import { BroadcastState, LobbyModState, LobbyPlayerStatus, LobbyState, MessageType, SettingsPatch, SignalCallback, SocketMessage } from "../types";
 
 const LobbyStateHostIdKey = 'hostId';
 export class LobbyManager {
@@ -46,7 +46,7 @@ export class LobbyManager {
   }
 
   // host only
-  hostUpdateSettings(clientId: string, patch: StatePatch) {
+  hostUpdateSettings(clientId: string, patch: SettingsPatch) {
     if (clientId !== this.state.settings[LobbyStateHostIdKey]) {
       throw new Error('only the host can do this');
     }
@@ -65,6 +65,18 @@ export class LobbyManager {
   }
 
   // public
+  updateStatus(clientId: string, status: LobbyPlayerStatus) {
+    const player = this.state.players.filter(p => p.clientId === clientId)[0];
+    if (!player) {
+      throw new Error('cannot updateStatus: player mising');
+    }
+    player.status = status;
+    this.state.players = [
+      ...this.state.players.filter(p => p.clientId !== clientId),
+      player
+    ];
+    this.broadcast(this.getState());
+  }
   uploadMod(mod: LobbyModState) {
     this.state.mods.push(mod);
     this.broadcast(this.getState());

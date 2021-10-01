@@ -1,6 +1,6 @@
 type StateSettingsValue = boolean | number | string
 type StateSettings = Record<string, StateSettingsValue>;
-export type StatePatch = Record<string, StateSettingsValue>;
+export type SettingsPatch = Record<string, StateSettingsValue>;
 export enum LobbyPlayerStatus {
   Queue = 'queue',
   Spectate = 'spectate',
@@ -22,10 +22,11 @@ export interface LobbyState {
 
 export enum MessageType {
   Register = 'register',
-  UpdateState = 'updateState',
+  UpdateStatus = 'updateStatus',
+  HostUpdateSettings = 'updateSettings',
   BroadcastState = 'broadcastState',
   UploadMod = 'uploadMod',
-  RemoveMod = 'removeMod',
+  HostRemoveMod = 'removeMod',
   Error = 'error',
   Test = 'test',
 }
@@ -34,9 +35,13 @@ export interface MessageReg {
   lobbyId: string;
   tag: string;
 }
-export interface UpdateState {
-  type: MessageType.UpdateState;
-  patch: StatePatch;
+export interface UpdateStatus {
+  type: MessageType.UpdateStatus;
+  status: LobbyPlayerStatus;
+}
+export interface HostUpdateSettings {
+  type: MessageType.HostUpdateSettings;
+  patch: SettingsPatch;
 }
 export interface BroadcastState {
   type: MessageType.BroadcastState;
@@ -46,8 +51,8 @@ export interface UploadMod {
   type: MessageType.UploadMod;
   data: LobbyModState;
 }
-export interface RemoveMod {
-  type: MessageType.RemoveMod;
+export interface HostRemoveMod {
+  type: MessageType.HostRemoveMod;
   modId: string;
 }
 export interface MessageError {
@@ -60,10 +65,11 @@ export interface MessageTest {
 }
 export type SocketMessage = (
   MessageReg |
-  UpdateState |
+  UpdateStatus |
+  HostUpdateSettings |
   BroadcastState |
   UploadMod |
-  RemoveMod |
+  HostRemoveMod |
   MessageError |
   MessageTest
 );
