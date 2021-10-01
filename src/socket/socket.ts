@@ -79,10 +79,10 @@ export class SocketContainer {
     if (this.comm !== undefined) {
       throw new Error('signal already registered');
     }
-    const lobbyId = data.lobbyId;
     this.comm = this.lobbyRegistrar.join({
-      lobbyId,
+      lobbyId: data.lobbyId,
       clientId: this.clientId,
+      tag: data.tag,
       cb: cbdata => this.send(cbdata),
     });
     this.processPending();

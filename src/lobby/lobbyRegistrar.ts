@@ -6,16 +6,18 @@ export class LobbyRegistrar {
   private readonly lookup: Record<string, LobbyManager> = {};
 
   join(args: {
-    lobbyId: string,
-    clientId: string,
-    cb: SignalCallback<SocketMessage>,
+    lobbyId: string;
+    clientId: string;
+    tag: string;
+    cb: SignalCallback<SocketMessage>;
   }): LobbyConnection {
     this.lookup[args.lobbyId] = this.lookup[args.lobbyId] ?? new LobbyManager(args.lobbyId);
     const lobby = this.lookup[args.lobbyId];
-    lobby.register(args.clientId, args.cb);
+    lobby.register(args);
     return new LobbyConnection({
       clientId: args.clientId,
       lobby,
+      cb: args.cb,
       onLeave: () => this.onCommLeave({
         clientId: args.clientId,
         lobby,
