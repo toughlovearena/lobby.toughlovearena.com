@@ -111,7 +111,7 @@ export class LobbyManager {
 
   health() {
     return {
-      signalId: this.lobbyId,
+      lobbyId: this.lobbyId,
       state: this.state,
       clients: Object.keys(this.clients),
     };

@@ -1,5 +1,5 @@
 import { LobbyRegistrar } from '../../lobby';
-import { SocketMessage } from '../../types';
+import { BroadcastMods, MessageReg, MessageType, SocketMessage, UploadMod } from '../../types';
 import { FakeTimeKeeper } from '../../__tests__/__mocks__/fakeTimeKeeper';
 import { SocketContainer } from '../socket';
 import { FakeSocket } from './__mocks__/fakeSocket';
@@ -15,25 +15,26 @@ describe('socket', () => {
     ws._trigger('message', JSON.stringify(msg));
   }
   const clientId = 'c1';
-  const groupId = 's1';
-  const registerData: SocketMessage = {
-    type: 'register',
-    lobbyId: groupId,
+  const lobbyId = 's1';
+  const registerData: MessageReg = {
+    type: MessageType.Register,
+    lobbyId: lobbyId,
+    tag: 'tag1',
   };
-  const signalData1: SocketMessage = {
-    type: 'data',
-    message: 'data1',
+  const signalData1: UploadMod = {
+    type: MessageType.UploadMod,
+    data: { modId: 'id1', configJson: 'data1', },
   };
-  const signalData2: SocketMessage = {
-    type: 'data',
-    message: 'data2',
+  const signalData2: UploadMod = {
+    type: MessageType.UploadMod,
+    data: { modId: 'id2', configJson: 'data2', },
   };
-  const signalData3: SocketMessage = {
-    type: 'data',
-    message: 'data3',
+  const signalData3: UploadMod = {
+    type: MessageType.UploadMod,
+    data: { modId: 'id3', configJson: 'data3', },
   };
-  function getGroupSnapshot() {
-    return lobbyRegistrar.health().filter(g => g.signalId === groupId)[0];
+  function getLobbySnapshot() {
+    return lobbyRegistrar.health().filter(g => g.lobbyId === lobbyId)[0];
   }
 
   beforeEach(() => {
@@ -51,55 +52,64 @@ describe('socket', () => {
   });
 
   test('invalid data causes error', () => {
-    expect(() => ws._trigger('message', JSON.stringify({ type: 'register', message: 'hello' }))).not.toThrow();
+    expect(() => ws._trigger('message', JSON.stringify({ type: 'dne', message: 'hello' }))).not.toThrow();
     expect(() => ws._trigger('message', '')).toThrow();
-    expect(() => ws._trigger('message', JSON.stringify({ type: 'badtype', message: 'hello' }))).toThrow();
   });
 
   test('register twice caused error', () => {
     expect(sut.health().group).toBeUndefined();
     sendMessage(registerData);
-    expect(sut.health().group).toBe(groupId);
+    expect(sut.health().group).toBe(lobbyId);
     expect(() => sendMessage(registerData)).toThrow();
   });
 
   test('register allows sending signals', () => {
-    expect(getGroupSnapshot()).toBeUndefined();
+    expect(getLobbySnapshot()).toBeUndefined();
     sendMessage(registerData);
-    expect(getGroupSnapshot()).toBeTruthy();
-    expect(getGroupSnapshot().history).toStrictEqual([]);
+    expect(getLobbySnapshot()).toBeTruthy();
+    expect(getLobbySnapshot().state.mods).toStrictEqual([]);
     sendMessage(signalData1);
-    expect(getGroupSnapshot().history).toStrictEqual([
-      { clientId, message: signalData1, },
+    expect(getLobbySnapshot().state.mods).toStrictEqual([
+      signalData1.data,
     ]);
     sendMessage(signalData2);
-    expect(getGroupSnapshot().history).toStrictEqual([
-      { clientId, message: signalData1, },
-      { clientId, message: signalData2, },
+    expect(getLobbySnapshot().state.mods).toStrictEqual([
+      signalData1.data,
+      signalData2.data,
     ]);
   });
 
   test('signals sent before register are queued up', () => {
     sendMessage(signalData1);
     sendMessage(signalData2);
-    expect(getGroupSnapshot()).toBeUndefined();
+    expect(getLobbySnapshot()).toBeUndefined();
     sendMessage(registerData);
-    expect(getGroupSnapshot()).toBeTruthy();
-    expect(getGroupSnapshot().history).toStrictEqual([
-      { clientId, message: signalData1, },
-      { clientId, message: signalData2, },
+    expect(getLobbySnapshot()).toBeTruthy();
+    expect(getLobbySnapshot().state.mods).toStrictEqual([
+      signalData1.data,
+      signalData2.data,
     ]);
     sendMessage(signalData3);
-    expect(getGroupSnapshot().history).toStrictEqual([
-      { clientId, message: signalData1, },
-      { clientId, message: signalData2, },
-      { clientId, message: signalData3, },
+    expect(getLobbySnapshot().state.mods).toStrictEqual([
+      signalData1.data,
+      signalData2.data,
+      signalData3.data,
     ]);
   });
 
   test('register allows receiving signals', () => {
-    expect(getGroupSnapshot()).toBeUndefined();
+    const broadcast1: BroadcastMods = {
+      type: MessageType.BroadcastMods,
+      state: [signalData1.data],
+    };
+    const broadcast2: BroadcastMods = {
+      type: MessageType.BroadcastMods,
+      state: [signalData1.data, signalData2.data],
+    };
+
+    expect(getLobbySnapshot()).toBeUndefined();
     sendMessage(registerData);
+    expect(ws._sent.length).toEqual(3);
 
     // setup second socket
     const ws2 = new FakeSocket();
@@ -111,36 +121,37 @@ describe('socket', () => {
       onCleanup: () => { },
     });
     ws2._trigger('message', JSON.stringify(registerData));
-    expect(ws._sent).toStrictEqual([]);
-
+    expect(ws2._sent.length).toEqual(3);
     ws2._trigger('message', JSON.stringify(signalData1));
-    expect(ws._sent).toStrictEqual([JSON.stringify(signalData1)]);
+    expect(ws._sent.slice(3)).toStrictEqual([JSON.stringify(broadcast1)]);
+    expect(ws2._sent.slice(3)).toStrictEqual([JSON.stringify(broadcast1)]);
     ws2._trigger('message', JSON.stringify(signalData2));
-    expect(ws._sent).toStrictEqual([JSON.stringify(signalData1), JSON.stringify(signalData2)]);
+    expect(ws._sent.slice(3)).toStrictEqual([JSON.stringify(broadcast1), JSON.stringify(broadcast2)]);
+    expect(ws2._sent.slice(3)).toStrictEqual([JSON.stringify(broadcast1), JSON.stringify(broadcast2)]);
   });
 
   test('close on error', () => {
     sendMessage(registerData);
     expect(ws._terminateCount).toBe(0);
     expect(cleanupCount).toBe(0);
-    expect(getGroupSnapshot()).toBeTruthy();
+    expect(getLobbySnapshot()).toBeTruthy();
 
     ws._trigger('error');
     expect(ws._terminateCount).toBe(1);
     expect(cleanupCount).toBe(1);
-    expect(getGroupSnapshot()).toBeUndefined();
+    expect(getLobbySnapshot()).toBeUndefined();
   });
 
   test('close on close', () => {
     sendMessage(registerData);
     expect(ws._terminateCount).toBe(0);
     expect(cleanupCount).toBe(0);
-    expect(getGroupSnapshot()).toBeTruthy();
+    expect(getLobbySnapshot()).toBeTruthy();
 
     ws._trigger('close');
     expect(ws._terminateCount).toBe(1);
     expect(cleanupCount).toBe(1);
-    expect(getGroupSnapshot()).toBeUndefined();
+    expect(getLobbySnapshot()).toBeUndefined();
   });
 
   test('checkAlive() closes after TTL if no update', () => {
