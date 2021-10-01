@@ -1,10 +1,12 @@
 
+type StateSettingsValue = boolean | number | string
+type StateSettings = Record<string, StateSettingsValue>;
 export interface LobbyState {
-  fixed: any;
-  settings: any;
+  settings: StateSettings;
   players: any[];
   mods: any[];
 }
+export type StatePatch = Record<string, StateSettingsValue>;
 
 export interface MessageReg {
   type: 'register';
@@ -20,7 +22,7 @@ export interface MessageData {
 }
 export interface MessageState {
   type: 'state';
-  data: LobbyState;
+  state: LobbyState;
 }
 
 export type SocketMessage = (
