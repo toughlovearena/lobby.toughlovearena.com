@@ -1,7 +1,35 @@
 import { BroadcastMessage, BroadcastMods, BroadcastPlayers, BroadcastSettings, LobbyModState, LobbyPlayerStatus, LobbyState, MessageType, SettingsPatch, SignalCallback, SocketMessage } from "../types";
 
+export interface LobbyRegistrationArgs {
+  clientId: string,
+  tag: string,
+  cb: SignalCallback<SocketMessage>,
+}
+export interface LobbyManagerHealth {
+  lobbyId: string;
+  state: LobbyState;
+  clients: string[];
+}
+
+export interface ILobbyManager {
+  register(args: LobbyRegistrationArgs): void;
+
+  unregister(clientId: string): void;
+  isEmpty(): boolean;
+
+  // host only
+  hostUpdateSettings(clientId: string, patch: SettingsPatch): void;
+  hostRemoveMod(clientId: string, modId: string): void;
+
+  // public
+  updateStatus(clientId: string, status: LobbyPlayerStatus): void;
+  uploadMod(mod: LobbyModState): void;
+
+  health(): LobbyManagerHealth;
+}
+
 const LobbyStateHostIdKey = 'hostId';
-export class LobbyManager {
+export class LobbyManager implements ILobbyManager {
   readonly lobbyId: string;
   private state: LobbyState = {
     settings: {},
@@ -13,11 +41,7 @@ export class LobbyManager {
     this.lobbyId = lobbyId;
   }
 
-  register(args: {
-    clientId: string,
-    tag: string,
-    cb: SignalCallback<SocketMessage>,
-  }) {
+  register(args: LobbyRegistrationArgs) {
     this.clients[args.clientId] = args.cb;
 
     if (this.state.players.length === 0) {

@@ -1,10 +1,10 @@
 import { MessageError, MessageType, SignalCallback, SocketMessage } from "../types";
-import { LobbyManager } from "./lobbyManager";
+import { ILobbyManager, LobbyManager } from "./lobbyManager";
 
 export class LobbyConnection {
   readonly lobbyId: string;
   readonly clientId: string;
-  private readonly lobby: LobbyManager;
+  private readonly lobby: ILobbyManager;
   private readonly cb: SignalCallback<SocketMessage>;
   private readonly onLeave: () => void;
   private hasLeft = false;
