@@ -1,5 +1,4 @@
-import { SocketMessage } from "../../../types";
-import { SignalCallback } from "../../lobbyManager";
+import { MessageType, SignalCallback, SocketMessage } from "../../../types";
 
 export const EmptyCallback: SignalCallback<any> = () => {
   // do nothing
@@ -7,8 +6,8 @@ export const EmptyCallback: SignalCallback<any> = () => {
 
 export function makeMsg(message: string): SocketMessage {
   return {
-    type: 'data',
-    message,
+    type: MessageType.Test,
+    data: message,
   };
 }
 

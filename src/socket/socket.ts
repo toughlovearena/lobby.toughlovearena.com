@@ -1,7 +1,7 @@
 import * as WebSocket from 'ws';
 import { LobbyConnection, LobbyRegistrar } from '../lobby';
 import { TimeKeeper } from '../time';
-import { MessageReg, SocketMessage } from '../types';
+import { MessageReg, MessageType, SocketMessage } from '../types';
 
 export type CleanupSocket = (sc: SocketContainer) => void;
 
@@ -57,7 +57,7 @@ export class SocketContainer {
   private receive(msg: string) {
     this.updatedAt = this.timeKeeper.now();
     const data = JSON.parse(msg) as SocketMessage;
-    if (data.type === 'register') {
+    if (data.type === MessageType.Register) {
       return this.register(data);
     }
     const { comm } = this;
@@ -65,11 +65,7 @@ export class SocketContainer {
       this.pending.push(msg);
       return;
     }
-    if (data.type === 'data') {
-      comm.broadcast(data);
-      return;
-    }
-    throw new Error('unsupported type: ' + data.type);
+    comm.handleMessage(data);
   }
 
   private cleanup() {

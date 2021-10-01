@@ -1,10 +1,10 @@
-import { SocketMessage } from "../types";
+import { MessageType, SocketMessage } from "../types";
 import { LobbyManager } from "./lobbyManager";
 
 export class LobbyConnection {
   readonly lobbyId: string;
   readonly clientId: string;
-  private readonly group: LobbyManager;
+  private readonly lobby: LobbyManager;
   private readonly onLeave: () => void;
   private hasLeft = false;
   constructor(args: {
@@ -14,13 +14,16 @@ export class LobbyConnection {
   }) {
     this.lobbyId = args.lobby.lobbyId;
     this.clientId = args.clientId;
-    this.group = args.lobby;
+    this.lobby = args.lobby;
     this.onLeave = args.onLeave;
   }
 
-  broadcast(msg: SocketMessage) {
+  handleMessage(msg: SocketMessage) {
     if (this.hasLeft) { return; }
-    return this.group.broadcast(this.clientId, msg);
+    if (msg.type === MessageType.UpdateState) {
+      return this.lobby.hostUpdateSettings(msg.patch);
+    }
+    throw new Error('unsupported type: ' + msg.type);
   }
   leave() {
     this.hasLeft = true;

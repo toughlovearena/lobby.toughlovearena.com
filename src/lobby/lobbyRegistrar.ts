@@ -1,6 +1,6 @@
-import { SocketMessage } from "../types";
+import { SignalCallback, SocketMessage } from "../types";
 import { LobbyConnection } from "./lobbyConn";
-import { LobbyManager, SignalCallback } from "./lobbyManager";
+import { LobbyManager } from "./lobbyManager";
 
 export class LobbyRegistrar {
   private readonly lookup: Record<string, LobbyManager> = {};

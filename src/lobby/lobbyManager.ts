@@ -1,7 +1,4 @@
-import { LobbyState, MessageState, SocketMessage, StatePatch } from "../types";
-
-export type SignalCallback<T> = (data: T) => void;
-
+import { BroadcastState, LobbyState, MessageType, SignalCallback, SocketMessage, StatePatch } from "../types";
 
 export class LobbyManager {
   readonly lobbyId: string;
@@ -17,11 +14,12 @@ export class LobbyManager {
 
   register(clientId: string, cb: SignalCallback<SocketMessage>) {
     this.clients[clientId] = cb;
-    cb({ type: 'state', state: this.state, });
+    cb(this.getState());
   }
   unregister(clientId: string) {
     delete this.clients[clientId];
     // todo delete from players
+    this.broadcast(this.getState());
   }
   isEmpty() {
     return Object.keys(this.clients).length === 0;
@@ -32,22 +30,18 @@ export class LobbyManager {
       ...this.state.settings,
       ...patch,
     };
-    const msg: MessageState = {
-      type: 'state',
-      state: this.state,
-    };
-    Object.keys(this.clients).forEach(key => {
-      this.clients[key](msg);
-    });
+    this.broadcast(this.getState());
   }
 
-  // todo cleanup
-  broadcast(clientId: string, data: SocketMessage) {
-    // this.history.push({ clientId, message: data, });
+  private getState(): BroadcastState {
+    return {
+      type: MessageType.BroadcastState,
+      state: this.state,
+    };
+  }
+  private broadcast(msg: SocketMessage) {
     Object.keys(this.clients).forEach(key => {
-      if (key === clientId) { return; }
-      const cb = this.clients[key];
-      cb(data);
+      this.clients[key](msg);
     });
   }
 
