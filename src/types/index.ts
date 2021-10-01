@@ -71,16 +71,16 @@ export interface ReplyError {
 export type BroadcastMessage = (
   BroadcastSettings |
   BroadcastPlayers |
-  BroadcastMods
+  BroadcastMods |
+  ReplyError
 );
-export type SocketMessage = (
+export type ClientMessage = (
   SendRegister |
-  BroadcastMessage |
   SendUpdateStatus |
   SendHostUpdateSettings |
   SendUploadMod |
-  SendHostRemoveMod |
-  ReplyError
+  SendHostRemoveMod
 );
 
-export type SignalCallback<T> = (data: T) => void;
+type SignalCallback<T> = (data: T) => void;
+export type BroadcastCallback = SignalCallback<BroadcastMessage>;

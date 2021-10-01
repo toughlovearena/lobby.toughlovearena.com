@@ -1,9 +1,9 @@
-import { BroadcastMessage, BroadcastMods, BroadcastPlayers, BroadcastSettings, LobbyModState, LobbyPlayerStatus, LobbyState, MessageType, SettingsPatch, SignalCallback, SocketMessage } from "../types";
+import { BroadcastCallback, BroadcastMessage, BroadcastMods, BroadcastPlayers, BroadcastSettings, LobbyModState, LobbyPlayerStatus, LobbyState, MessageType, SettingsPatch } from "../types";
 
 export interface LobbyRegistrationArgs {
   clientId: string,
   tag: string,
-  cb: SignalCallback<SocketMessage>,
+  cb: BroadcastCallback,
 }
 export interface LobbyManagerHealth {
   lobbyId: string;
@@ -36,7 +36,7 @@ export class LobbyManager implements ILobbyManager {
     players: [],
     mods: [],
   };
-  private readonly clients: Record<string, SignalCallback<SocketMessage>> = {};
+  private readonly clients: Record<string, BroadcastCallback> = {};
   constructor(lobbyId: string) {
     this.lobbyId = lobbyId;
   }

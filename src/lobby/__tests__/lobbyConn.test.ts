@@ -1,4 +1,4 @@
-import { LobbyPlayerStatus, MessageType, SendHostRemoveMod, SendHostUpdateSettings, SendRegister, SendUpdateStatus, SendUploadMod, SocketMessage } from '../../types';
+import { BroadcastMessage, LobbyPlayerStatus, MessageType, SendHostRemoveMod, SendHostUpdateSettings, SendRegister, SendUpdateStatus, SendUploadMod } from '../../types';
 import { LobbyConnection } from '../lobbyConn';
 import { LobbyManager } from '../lobbyManager';
 import { FakeLobbyManager, genUploadMod } from './__mocks__/testHelpers';
@@ -6,7 +6,7 @@ import { FakeLobbyManager, genUploadMod } from './__mocks__/testHelpers';
 describe('LobbyConnection', () => {
   let fakeLobby: FakeLobbyManager;
   let leaveCount: number;
-  let inbox: SocketMessage[];
+  let inbox: BroadcastMessage[];
   let sut: LobbyConnection;
 
   beforeEach(() => {

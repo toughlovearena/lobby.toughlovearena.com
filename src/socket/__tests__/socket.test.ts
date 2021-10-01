@@ -1,5 +1,5 @@
 import { LobbyRegistrar } from '../../lobby';
-import { BroadcastMods, MessageType, SendRegister, SendUploadMod, SocketMessage } from '../../types';
+import { BroadcastMods, ClientMessage, MessageType, SendRegister, SendUploadMod } from '../../types';
 import { FakeTimeKeeper } from '../../__tests__/__mocks__/fakeTimeKeeper';
 import { SocketContainer } from '../socket';
 import { FakeSocket } from './__mocks__/fakeSocket';
@@ -11,7 +11,7 @@ describe('socket', () => {
   let cleanupCount = 0;
   let sut: SocketContainer;
 
-  function sendMessage(msg: SocketMessage) {
+  function sendMessage(msg: ClientMessage) {
     ws._trigger('message', JSON.stringify(msg));
   }
   const clientId = 'c1';

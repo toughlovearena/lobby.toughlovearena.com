@@ -1,7 +1,7 @@
 import * as WebSocket from 'ws';
 import { LobbyConnection, LobbyRegistrar } from '../lobby';
 import { TimeKeeper } from '../time';
-import { MessageType, SendRegister, SocketMessage } from '../types';
+import { BroadcastMessage, ClientMessage, MessageType, SendRegister } from '../types';
 
 export type CleanupSocket = (sc: SocketContainer) => void;
 
@@ -50,13 +50,13 @@ export class SocketContainer {
     }
   }
 
-  private send(data: SocketMessage) {
+  private send(data: BroadcastMessage) {
     this.updatedAt = this.timeKeeper.now();
     this.socket.send(JSON.stringify(data));
   }
   private receive(msg: string) {
     this.updatedAt = this.timeKeeper.now();
-    const data = JSON.parse(msg) as SocketMessage;
+    const data = JSON.parse(msg) as ClientMessage;
     if (data.type === MessageType.SendRegister) {
       return this.register(data);
     }

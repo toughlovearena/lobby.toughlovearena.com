@@ -1,7 +1,7 @@
-import { LobbyModState, LobbyPlayerStatus, MessageType, SendUploadMod, SettingsPatch, SignalCallback } from "../../../types";
+import { BroadcastCallback, LobbyModState, LobbyPlayerStatus, MessageType, SendUploadMod, SettingsPatch } from "../../../types";
 import { ILobbyManager, LobbyManagerHealth, LobbyRegistrationArgs } from "../../lobbyManager";
 
-export const EmptyCallback: SignalCallback<any> = () => {
+export const EmptyCallback: BroadcastCallback = () => {
   // do nothing
 };
 

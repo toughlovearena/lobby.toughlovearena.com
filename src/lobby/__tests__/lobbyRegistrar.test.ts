@@ -1,9 +1,9 @@
 import { LobbyRegistrar, LobbyRegistrarJoinArgs } from '..';
-import { SignalCallback, SocketMessage } from '../../types';
+import { BroadcastCallback } from '../../types';
 import { EmptyCallback } from './__mocks__/testHelpers';
 
 describe('lobbyRegistrar', () => {
-  function genLobbyRegistrarJoinArgs(lid: string, slug: string, cb?: SignalCallback<SocketMessage>): LobbyRegistrarJoinArgs {
+  function genLobbyRegistrarJoinArgs(lid: string, slug: string, cb?: BroadcastCallback): LobbyRegistrarJoinArgs {
     return {
       lobbyId: lid,
       clientId: slug,

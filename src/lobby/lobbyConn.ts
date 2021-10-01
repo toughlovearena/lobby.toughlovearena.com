@@ -1,17 +1,17 @@
-import { MessageType, ReplyError, SignalCallback, SocketMessage } from "../types";
+import { BroadcastCallback, ClientMessage, MessageType, ReplyError } from "../types";
 import { ILobbyManager, LobbyManager } from "./lobbyManager";
 
 export class LobbyConnection {
   readonly lobbyId: string;
   readonly clientId: string;
   private readonly lobby: ILobbyManager;
-  private readonly cb: SignalCallback<SocketMessage>;
+  private readonly cb: BroadcastCallback;
   private readonly onLeave: () => void;
   private hasLeft = false;
   constructor(args: {
     clientId: string;
     lobby: LobbyManager;
-    cb: SignalCallback<SocketMessage>;
+    cb: BroadcastCallback;
     onLeave: () => void;
   }) {
     this.lobbyId = args.lobby.lobbyId;
@@ -21,7 +21,7 @@ export class LobbyConnection {
     this.onLeave = args.onLeave;
   }
 
-  handleMessage(msg: SocketMessage) {
+  handleMessage(msg: ClientMessage) {
     if (this.hasLeft) { return; }
     try {
       if (msg.type === MessageType.SendUpdateStatus) {

@@ -1,4 +1,4 @@
-import { SignalCallback, SocketMessage } from "../types";
+import { BroadcastCallback } from "../types";
 import { LobbyConnection } from "./lobbyConn";
 import { LobbyManager } from "./lobbyManager";
 
@@ -6,7 +6,7 @@ export interface LobbyRegistrarJoinArgs {
   lobbyId: string;
   clientId: string;
   tag: string;
-  cb: SignalCallback<SocketMessage>;
+  cb: BroadcastCallback;
 }
 
 export class LobbyRegistrar {

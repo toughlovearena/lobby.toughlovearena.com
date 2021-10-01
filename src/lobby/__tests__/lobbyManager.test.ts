@@ -1,9 +1,9 @@
-import { BroadcastMods, MessageType, SignalCallback, SocketMessage } from '../../types';
+import { BroadcastCallback, BroadcastMessage, BroadcastMods, MessageType } from '../../types';
 import { LobbyManager, LobbyRegistrationArgs } from '../lobbyManager';
 import { EmptyCallback, genUploadMod } from './__mocks__/testHelpers';
 
 describe('lobbyManager', () => {
-  function genLobbyRegistrationArgs(slug: string, cb?: SignalCallback<SocketMessage>): LobbyRegistrationArgs {
+  function genLobbyRegistrationArgs(slug: string, cb?: BroadcastCallback): LobbyRegistrationArgs {
     return {
       clientId: slug,
       tag: 'tag-' + slug,
@@ -35,9 +35,9 @@ describe('lobbyManager', () => {
   test('uploadMod()', () => {
     const sut = new LobbyManager('signal');
 
-    let aInbox: SocketMessage[] = [];
+    let aInbox: BroadcastMessage[] = [];
     sut.register(genLobbyRegistrationArgs('a', msg => aInbox.push(msg)));
-    let bInbox: SocketMessage[] = [];
+    let bInbox: BroadcastMessage[] = [];
     sut.register(genLobbyRegistrationArgs('b', msg => bInbox.push(msg)));
     aInbox = [];
     bInbox = [];
@@ -64,7 +64,7 @@ describe('lobbyManager', () => {
   test('receive all state on register', () => {
     const sut = new LobbyManager('signal');
 
-    const aInbox: SocketMessage[] = [];
+    const aInbox: BroadcastMessage[] = [];
     sut.register(genLobbyRegistrationArgs('a', msg => aInbox.push(msg)));
     expect(aInbox.length).toBe(3);
 
@@ -76,7 +76,7 @@ describe('lobbyManager', () => {
     };
     expect(aInbox.length).toBe(4);
 
-    const bInbox: SocketMessage[] = [];
+    const bInbox: BroadcastMessage[] = [];
     sut.register(genLobbyRegistrationArgs('b', msg => bInbox.push(msg)));
     expect(aInbox.length).toBe(5);
     expect(bInbox.length).toBe(3);
