@@ -33,14 +33,14 @@ export class Server {
     });
 
     // ws
-    router.ws('/connect/:lobbyId', async (req, res) => {
-      const { lobbyId } = req.params;
+    router.ws('/connect/:lobbyId/:clientId', async (req, res) => {
+      const { lobbyId, clientId } = req.params;
       const lobby = lobbyRegistrar.get(lobbyId);
-      if (!lobby) {
+      if (!(lobby && clientId)) {
         return res.sendError(404);
       }
       const ws = await res.accept();
-      socketManager.create(ws, lobby);
+      socketManager.create(ws, clientId, lobby);
     });
 
     this.app.use(cors());

@@ -4,15 +4,16 @@ import { TimeKeeper } from '../time';
 import { SocketContainer } from "./socket";
 
 export class SocketManager {
-  private clientTick = 0;
+  private clientCount = 0;
   private readonly sockets: Record<string, SocketContainer> = {};
   constructor(
     private readonly timeKeeper: TimeKeeper,
   ) { }
 
-  create(ws: WebSocket, lobby: ILobbyManager) {
+  create(ws: WebSocket, clientId: string, lobby: ILobbyManager) {
+    this.clientCount++;
     const socketContainer = new SocketContainer({
-      clientId: (this.clientTick++).toString(),
+      clientId,
       socket: ws,
       lobby,
       timeKeeper: this.timeKeeper,
@@ -30,7 +31,7 @@ export class SocketManager {
 
   health() {
     return {
-      tick: this.clientTick,
+      total: this.clientCount,
       clients: Object.values(this.sockets).map(s => s.health()),
     };
   }

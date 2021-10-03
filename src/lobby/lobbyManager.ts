@@ -94,7 +94,8 @@ export class LobbyManager implements ILobbyManager {
 
   // host only
   hostUpdateSettings(clientId: string, patch: SettingsPatch) {
-    if (clientId !== this.state.settings[LobbyStateHostIdKey]) {
+    const hostId = this.state.settings[LobbyStateHostIdKey];
+    if (hostId !== undefined && clientId !== hostId) {
       throw new Error('only the host can do this');
     }
     this.state.settings = {
@@ -104,7 +105,8 @@ export class LobbyManager implements ILobbyManager {
     this.broadcast(this.getSettings());
   }
   hostRemoveMod(clientId: string, modId: string) {
-    if (clientId !== this.state.settings[LobbyStateHostIdKey]) {
+    const hostId = this.state.settings[LobbyStateHostIdKey];
+    if (hostId !== undefined && clientId !== hostId) {
       throw new Error('only the host can do this');
     }
     this.state.mods = this.state.mods.filter(p => p.modId !== modId);

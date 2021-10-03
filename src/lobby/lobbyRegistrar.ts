@@ -12,6 +12,7 @@ export class LobbyRegistrar {
       return this.create();
     }
     const lobby = new LobbyManager(lobbyId, this.timeKeeper, () => this.checkPrune(lobbyId));
+    setTimeout(() => this.checkPrune(lobbyId), lobby.TTL + 1);
     this.lookup[lobbyId] = lobby;
     return lobby;
   }

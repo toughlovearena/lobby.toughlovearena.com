@@ -56,7 +56,14 @@ export class SocketContainer {
   }
   private receive(msg: string) {
     this.updatedAt = this.timeKeeper.now();
-    const data = JSON.parse(msg) as ClientMessage;
+    let data: ClientMessage;
+    try {
+      data = JSON.parse(msg) as ClientMessage;
+    } catch (err) {
+      // tslint:disable-next-line:no-console
+      console.log(err);
+      return;
+    }
     if (data.type === MessageType.SendRegister) {
       return this.register(data);
     }
