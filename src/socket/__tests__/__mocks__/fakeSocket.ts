@@ -5,6 +5,7 @@ type EventCallback = (data?: any) => void
 export class FakeSocket {
   _sent: any[] = [];
   _hooks: Record<string, EventCallback> = {};
+  _closeCount = 0;
   _terminateCount = 0;
 
   send(data: any) {
@@ -12,6 +13,9 @@ export class FakeSocket {
   }
   on(eventType: string, cb: EventCallback) {
     this._hooks[eventType] = cb;
+  }
+  close(code: number, reason: string) {
+    this._closeCount++;
   }
   terminate() {
     this._terminateCount++;

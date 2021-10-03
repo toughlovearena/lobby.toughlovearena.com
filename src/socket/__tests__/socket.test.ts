@@ -18,7 +18,6 @@ describe('socket', () => {
   const lobbyId = 's1';
   const registerData: SendRegister = {
     type: MessageType.SendRegister,
-    lobbyId: lobbyId,
     tag: 'tag1',
   };
   const signalData1: SendUploadMod = {
@@ -49,8 +48,11 @@ describe('socket', () => {
   });
 
   test('invalid data causes error', () => {
-    expect(() => ws._trigger('message', JSON.stringify({ type: 'dne', message: 'hello' }))).not.toThrow();
-    expect(() => ws._trigger('message', '')).toThrow();
+    expect(ws._closeCount).toBe(0);
+    ws._trigger('message', JSON.stringify({ type: 'dne', message: 'hello' }));
+    expect(ws._closeCount).toBe(0);
+    ws._trigger('message', '');
+    expect(ws._closeCount).toBe(1);
   });
 
   test('register twice caused error', () => {

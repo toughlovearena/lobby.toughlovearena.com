@@ -60,8 +60,11 @@ export class SocketContainer {
     try {
       data = JSON.parse(msg) as ClientMessage;
     } catch (err) {
-      // tslint:disable-next-line:no-console
-      console.log(err);
+      this.send({
+        type: MessageType.ReplyError,
+        message: err.toString(),
+      });
+      this.socket.close(400, err.toString());
       return;
     }
     if (data.type === MessageType.SendRegister) {

@@ -19,7 +19,7 @@ describe('socketManager', () => {
     expect(sut.health().clients.length).toBe(0);
 
     const ws = new FakeSocket();
-    sut.create(ws._cast(), lobby);
+    sut.create(ws._cast(), 'c1', lobby);
     expect(sut.health().clients.length).toBe(1);
 
     ws._trigger('close');
@@ -30,7 +30,7 @@ describe('socketManager', () => {
     expect(sut.health().clients.length).toBe(0);
 
     const ws = new FakeSocket();
-    sut.create(ws._cast(), lobby);
+    sut.create(ws._cast(), 'c1', lobby);
     sut.checkAlive();
     expect(sut.health().clients.length).toBe(1);
 
