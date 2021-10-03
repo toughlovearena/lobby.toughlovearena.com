@@ -86,6 +86,9 @@ export class SocketContainer {
     if (this.comm !== undefined) {
       throw new Error('signal already registered');
     }
+    if (this.lobby.isDead()) {
+      throw new Error('lobby is no longer available');
+    }
     this.comm = this.lobby.register({
       clientId: this.clientId,
       tag: data.tag,
