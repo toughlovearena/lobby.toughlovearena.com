@@ -45,7 +45,6 @@ export interface BroadcastMods {
 }
 export interface SendRegister {
   type: MessageType.SendRegister;
-  lobbyId: string;
   tag: string;
 }
 export interface SendUpdateStatus {
