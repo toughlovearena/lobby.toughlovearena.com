@@ -28,7 +28,8 @@ export class Server {
       res.send(data);
     });
     router.post('/create', async (req, res) => {
-      // todo
+      const lobby = await lobbyRegistrar.create();
+      res.send({ lobbyId: lobby.lobbyId, });
     });
 
     // ws
