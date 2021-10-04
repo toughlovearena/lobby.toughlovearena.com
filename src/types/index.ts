@@ -15,6 +15,7 @@ export interface LobbyModState {
   configJson: string;
 }
 export interface LobbyState {
+  lobbyId: string;
   settings: StateSettings;
   players: LobbyPlayerState[];
   mods: LobbyModState[];

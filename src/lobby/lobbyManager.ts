@@ -32,11 +32,7 @@ const LobbyStateHostIdKey = 'hostId';
 export class LobbyManager implements ILobbyManager {
   readonly TTL = 30 * 1000; // 30s
   private createdAt: number;
-  private state: LobbyState = {
-    settings: {},
-    players: [],
-    mods: [],
-  };
+  private state: LobbyState;
   private readonly clients: Record<string, BroadcastCallback> = {};
   constructor(
     readonly lobbyId: string,
@@ -44,6 +40,12 @@ export class LobbyManager implements ILobbyManager {
     private readonly onUserLeave: () => void,
   ) {
     this.createdAt = this.timeKeeper.now();
+    this.state = {
+      lobbyId: this.lobbyId,
+      settings: {},
+      players: [],
+      mods: [],
+    };
   }
 
   register(args: LobbyRegistrationArgs) {
