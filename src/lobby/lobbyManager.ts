@@ -18,6 +18,7 @@ export interface ILobbyManager {
   isDead(): boolean;
 
   // host only
+  hostKickPlayer(clientId: string, toKick: string): void;
   hostUpdateSettings(clientId: string, patch: SettingsPatch): void;
   hostRemoveMod(clientId: string, modId: string): void;
 
@@ -99,6 +100,13 @@ export class LobbyManager implements ILobbyManager {
   }
 
   // host only
+  hostKickPlayer(clientId: string, toKick: string) {
+    const hostId = this.state.settings[LobbyStateHostIdKey];
+    if (hostId !== undefined && clientId !== hostId) {
+      throw new Error('only the host can do this');
+    }
+    this.unregister(toKick);
+  }
   hostUpdateSettings(clientId: string, patch: SettingsPatch) {
     const hostId = this.state.settings[LobbyStateHostIdKey];
     if (hostId !== undefined && clientId !== hostId) {

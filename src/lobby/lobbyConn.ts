@@ -30,6 +30,9 @@ export class LobbyConnection {
       if (msg.type === MessageType.SendUpdateStatus) {
         return this.lobby.updateStatus(this.clientId, msg.status);
       }
+      if (msg.type === MessageType.SendHostKickPlayer) {
+        return this.lobby.hostKickPlayer(this.clientId, msg.clientId);
+      }
       if (msg.type === MessageType.SendHostUpdateSettings) {
         return this.lobby.hostUpdateSettings(this.clientId, msg.patch);
       }

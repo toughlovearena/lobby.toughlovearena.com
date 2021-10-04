@@ -54,7 +54,6 @@ describe('LobbyConnection', () => {
   test('handleMessage sends error when type is unsupported', () => {
     const badMessage: SendRegister = {
       type: MessageType.SendRegister,
-      lobbyId: 'l1',
       tag: 't1',
     };
     sut.handleMessage(badMessage);

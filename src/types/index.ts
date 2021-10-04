@@ -28,6 +28,7 @@ export enum MessageType {
   SendRegister = 'register',
   SendReady = 'ready',
   SendUpdateStatus = 'updateStatus',
+  SendHostKickPlayer = 'kickPlayer',
   SendHostUpdateSettings = 'updateSettings',
   SendUploadMod = 'uploadMod',
   SendHostRemoveMod = 'removeMod',
@@ -57,6 +58,10 @@ export interface SendUpdateStatus {
   type: MessageType.SendUpdateStatus;
   status: LobbyPlayerStatus;
 }
+export interface SendHostKickPlayer {
+  type: MessageType.SendHostKickPlayer;
+  clientId: string;
+}
 export interface SendHostUpdateSettings {
   type: MessageType.SendHostUpdateSettings;
   patch: SettingsPatch;
@@ -83,6 +88,7 @@ export type ClientMessage = (
   SendRegister |
   SendReady |
   SendUpdateStatus |
+  SendHostKickPlayer |
   SendHostUpdateSettings |
   SendUploadMod |
   SendHostRemoveMod
