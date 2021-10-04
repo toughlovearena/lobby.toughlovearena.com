@@ -24,6 +24,9 @@ export class LobbyConnection {
   handleMessage(msg: ClientMessage) {
     if (this.hasLeft) { return; }
     try {
+      if (msg.type === MessageType.SendReady) {
+        return this.lobby.updateReady(this.clientId, msg.ready);
+      }
       if (msg.type === MessageType.SendUpdateStatus) {
         return this.lobby.updateStatus(this.clientId, msg.status);
       }

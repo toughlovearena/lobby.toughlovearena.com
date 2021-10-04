@@ -38,6 +38,10 @@ export class FakeLobbyManager implements ILobbyManager {
   }
 
   // public
+  readonly _updateReady: any[] = [];
+  updateReady(clientId: string, isReady: boolean) {
+    this._updateReady.push(isReady);
+  }
   readonly _updateStatus: any[] = [];
   updateStatus(clientId: string, status: LobbyPlayerStatus) {
     this._updateStatus.push(status);

@@ -22,13 +22,17 @@ export interface ILobbyManager {
   hostRemoveMod(clientId: string, modId: string): void;
 
   // public
+  updateReady(clientId: string, isReady: boolean): void;
   updateStatus(clientId: string, status: LobbyPlayerStatus): void;
   uploadMod(mod: LobbyModState): void;
 
   health(): LobbyManagerHealth;
 }
 
+// todo put into types
 const LobbyStateHostIdKey = 'hostId';
+const LobbyStateReady1Key = 'ready1';
+const LobbyStateReady2Key = 'ready2';
 export class LobbyManager implements ILobbyManager {
   readonly TTL = 30 * 1000; // 30s
   private createdAt: number;
@@ -116,6 +120,21 @@ export class LobbyManager implements ILobbyManager {
   }
 
   // public
+  updateReady(clientId: string, isReady: boolean) {
+    const index = this.state.players.findIndex(ps => ps.clientId === clientId);
+    if (index < 0) {
+      throw new Error('cannot updateStatus: player mising');
+    }
+    if (index < 2) {
+      if (index === 0) {
+        this.state.settings[LobbyStateReady1Key] = isReady;
+      }
+      if (index === 1) {
+        this.state.settings[LobbyStateReady2Key] = isReady;
+      }
+      this.broadcast(this.getSettings());
+    }
+  }
   updateStatus(clientId: string, status: LobbyPlayerStatus) {
     const player = this.state.players.filter(p => p.clientId === clientId)[0];
     if (!player) {

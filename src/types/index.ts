@@ -26,6 +26,7 @@ export enum MessageType {
   BroadcastPlayers = 'broadcastPlayers',
   BroadcastMods = 'broadcastMods',
   SendRegister = 'register',
+  SendReady = 'ready',
   SendUpdateStatus = 'updateStatus',
   SendHostUpdateSettings = 'updateSettings',
   SendUploadMod = 'uploadMod',
@@ -47,6 +48,10 @@ export interface BroadcastMods {
 export interface SendRegister {
   type: MessageType.SendRegister;
   tag: string;
+}
+export interface SendReady {
+  type: MessageType.SendReady;
+  ready: boolean;
 }
 export interface SendUpdateStatus {
   type: MessageType.SendUpdateStatus;
@@ -76,6 +81,7 @@ export type BroadcastMessage = (
 );
 export type ClientMessage = (
   SendRegister |
+  SendReady |
   SendUpdateStatus |
   SendHostUpdateSettings |
   SendUploadMod |
