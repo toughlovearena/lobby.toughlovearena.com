@@ -1,5 +1,5 @@
 import { TimeKeeper } from "../time";
-import { BroadcastCallback, BroadcastMessage, BroadcastMods, BroadcastPlayers, BroadcastSettings, LobbyModState, LobbyPlayerStatus, LobbyState, MessageType, SettingsPatch } from "../types";
+import { BroadcastCallback, BroadcastInputBatch, BroadcastMatch, BroadcastMessage, BroadcastMods, BroadcastPlayers, BroadcastSettings, LobbyInputBatch, LobbyInputHistory, LobbyModState, LobbyPlayerStatus, LobbyState, MessageType, SettingsPatch } from "../types";
 import { LobbyConnection } from "./lobbyConn";
 
 export interface LobbyRegistrationArgs {
@@ -24,6 +24,7 @@ export interface ILobbyManager {
   hostRemoveMod(clientId: string, modId: string): void;
 
   // public
+  handleInputBatch(batch: LobbyInputBatch): void;
   updateReady(clientId: string, isReady: boolean): void;
   updateStatus(clientId: string, status: LobbyPlayerStatus): void;
   uploadMod(mod: LobbyModState): void;
@@ -34,12 +35,14 @@ export interface ILobbyManager {
 // todo put into types
 const LobbyStateHostIdKey = 'hostId';
 const LobbyStateMaxKey = 'max';
+const LobbyStateLockedKey = 'locked';
 const LobbyStateReady1Key = 'ready1';
 const LobbyStateReady2Key = 'ready2';
 export class LobbyManager implements ILobbyManager {
   readonly TTL = 30 * 1000; // 30s
   private createdAt: number;
   private state: LobbyState;
+  private matchInputHistory: LobbyInputHistory | undefined;
   private readonly clients: Record<string, BroadcastCallback> = {};
   constructor(
     readonly lobbyId: string,
@@ -59,7 +62,11 @@ export class LobbyManager implements ILobbyManager {
     if (this.clients[args.clientId]) {
       throw new Error('cannot register twice');
     }
-    const maxPlayers = this.state.settings[LobbyStateMaxKey] ?? 8;
+    const locked = (this.state.settings[LobbyStateLockedKey] as boolean | undefined) ?? false;
+    if (locked) {
+      throw new Error('lobby is locked');
+    }
+    const maxPlayers = (this.state.settings[LobbyStateMaxKey] as number | undefined) ?? 8;
     if (maxPlayers && maxPlayers <= this.state.players.length) {
       throw new Error('lobby is full');
     }
@@ -77,6 +84,13 @@ export class LobbyManager implements ILobbyManager {
     args.cb(this.getSettings());
     this.broadcast(this.getPlayers());
     args.cb(this.getMods());
+    args.cb(this.getMatch());
+    if (this.matchInputHistory) {
+      args.cb({
+        type: MessageType.BroadcastInputHistory,
+        state: this.matchInputHistory,
+      });
+    }
 
     return new LobbyConnection({
       clientId: args.clientId,
@@ -141,6 +155,22 @@ export class LobbyManager implements ILobbyManager {
   }
 
   // public
+  handleInputBatch(batch: LobbyInputBatch) {
+    this.matchInputHistory!.history.push(batch);
+    const fighters = this.state.players.filter(p => p.status === LobbyPlayerStatus.Queue);
+    const spectators = this.state.players.filter(p => p.status === LobbyPlayerStatus.Spectate);
+    const toReceive = [...fighters.slice(2), ...spectators];
+    const msg: BroadcastInputBatch = {
+      type: MessageType.BroadcastInputBatch,
+      state: batch,
+    };
+    toReceive.forEach(p => {
+      const cb = this.clients[p.clientId];
+      if (cb) {
+        cb(msg);
+      }
+    });
+  }
   updateReady(clientId: string, isReady: boolean) {
     const index = this.state.players.findIndex(ps => ps.clientId === clientId);
     if (index < 0) {
@@ -189,6 +219,12 @@ export class LobbyManager implements ILobbyManager {
     return {
       type: MessageType.BroadcastMods,
       state: [...this.state.mods],
+    };
+  }
+  private getMatch(): BroadcastMatch {
+    return {
+      type: MessageType.BroadcastMatch,
+      state: { ...this.state.match },
     };
   }
   private broadcast(msg: BroadcastMessage) {

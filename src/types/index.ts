@@ -1,3 +1,8 @@
+export interface LobbyMatchState {
+  peerId?: string;
+  gameConfigJson?: string;
+  started: boolean;
+}
 type StateSettingsValue = boolean | number | string
 type StateSettings = Record<string, StateSettingsValue>;
 export type SettingsPatch = Record<string, StateSettingsValue>;
@@ -16,15 +21,26 @@ export interface LobbyModState {
 }
 export interface LobbyState {
   lobbyId: string;
+  match?: LobbyMatchState;
   settings: StateSettings;
   players: LobbyPlayerState[];
   mods: LobbyModState[];
 }
+export interface LobbyInputBatch {
+  data: any; // todo
+}
+export interface LobbyInputHistory {
+  history: LobbyInputBatch[];
+}
 
 export enum MessageType {
+  BroadcastMatch = 'broadcastMatch',
   BroadcastSettings = 'broadcastSettings',
   BroadcastPlayers = 'broadcastPlayers',
   BroadcastMods = 'broadcastMods',
+  BroadcastInputBatch = 'broadcastInputBatch',
+  BroadcastInputHistory = 'broadcastInputHistory',
+  SendInputBatch = 'sendInputBatch',
   SendRegister = 'register',
   SendReady = 'ready',
   SendUpdateStatus = 'updateStatus',
@@ -34,6 +50,10 @@ export enum MessageType {
   SendUploadMod = 'uploadMod',
   SendHostRemoveMod = 'removeMod',
   ReplyError = 'error',
+}
+export interface BroadcastMatch {
+  type: MessageType.BroadcastMatch;
+  state: LobbyMatchState;
 }
 export interface BroadcastSettings {
   type: MessageType.BroadcastSettings;
@@ -46,6 +66,18 @@ export interface BroadcastPlayers {
 export interface BroadcastMods {
   type: MessageType.BroadcastMods;
   state: LobbyModState[];
+}
+export interface BroadcastInputBatch {
+  type: MessageType.BroadcastInputBatch;
+  state: LobbyInputBatch;
+}
+export interface BroadcastInputHistory {
+  type: MessageType.BroadcastInputHistory;
+  state: LobbyInputHistory;
+}
+export interface SendInputBatch {
+  type: MessageType.SendInputBatch;
+  state: LobbyInputBatch;
 }
 export interface SendRegister {
   type: MessageType.SendRegister;
@@ -85,12 +117,16 @@ export interface ReplyError {
   message: string;
 }
 export type BroadcastMessage = (
+  BroadcastMatch |
   BroadcastSettings |
   BroadcastPlayers |
   BroadcastMods |
+  BroadcastInputBatch |
+  BroadcastInputHistory |
   ReplyError
 );
 export type ClientMessage = (
+  SendInputBatch |
   SendRegister |
   SendReady |
   SendUpdateStatus |

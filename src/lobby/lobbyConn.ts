@@ -44,6 +44,9 @@ export class LobbyConnection {
     if (msg.type === MessageType.SendHostRemoveMod) {
       return this.lobby.hostRemoveMod(this.clientId, msg.modId);
     }
+    if (msg.type === MessageType.SendInputBatch) {
+      return this.lobby.handleInputBatch(msg.state);
+    }
     throw new Error('unsupported type: ' + msg.type);
   }
   leave() {

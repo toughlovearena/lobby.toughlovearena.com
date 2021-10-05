@@ -1,5 +1,5 @@
 import { ILobbyManager, LobbyConnection, LobbyManagerHealth, LobbyRegistrationArgs } from "../..";
-import { BroadcastCallback, LobbyModState, LobbyPlayerStatus, MessageType, SendUploadMod, SettingsPatch } from "../../../types";
+import { BroadcastCallback, LobbyInputBatch, LobbyModState, LobbyPlayerStatus, MessageType, SendUploadMod, SettingsPatch } from "../../../types";
 
 export const EmptyCallback: BroadcastCallback = () => {
   // do nothing
@@ -29,23 +29,27 @@ export class FakeLobbyManager implements ILobbyManager {
 
   // host only
   readonly _hostUpdateStatus: any[] = [];
-  hostUpdateStatus(hostId: string, toUpdate: string, status: LobbyPlayerStatus) {
+  hostUpdateStatus(clientId: string, toUpdate: string, status: LobbyPlayerStatus) {
     this._hostUpdateStatus.push(toUpdate);
   }
   readonly _hostKickPlayer: any[] = [];
-  hostKickPlayer(hostId: string, toKick: string) {
+  hostKickPlayer(clientId: string, toKick: string) {
     this._hostKickPlayer.push(toKick);
   }
   readonly _hostUpdateSettings: any[] = [];
-  hostUpdateSettings(hostId: string, patch: SettingsPatch) {
+  hostUpdateSettings(clientId: string, patch: SettingsPatch) {
     this._hostUpdateSettings.push(patch);
   }
   readonly _hostRemoveMod: any[] = [];
-  hostRemoveMod(hostId: string, modId: string) {
+  hostRemoveMod(clientId: string, modId: string) {
     this._hostRemoveMod.push(modId);
   }
 
   // public
+  readonly _handleInputBatch: any[] = [];
+  handleInputBatch(batch: LobbyInputBatch) {
+    this._handleInputBatch.push(batch);
+  }
   readonly _updateReady: any[] = [];
   updateReady(clientId: string, isReady: boolean) {
     this._updateReady.push(isReady);
