@@ -1,6 +1,6 @@
-import { LobbyConnection } from ".";
 import { TimeKeeper } from "../time";
 import { BroadcastCallback, BroadcastMessage, BroadcastMods, BroadcastPlayers, BroadcastSettings, LobbyModState, LobbyPlayerStatus, LobbyState, MessageType, SettingsPatch } from "../types";
+import { LobbyConnection } from "./lobbyConn";
 
 export interface LobbyRegistrationArgs {
   clientId: string,
@@ -18,6 +18,7 @@ export interface ILobbyManager {
   isDead(): boolean;
 
   // host only
+  hostUpdateStatus(clientId: string, toUpdate: string, status: LobbyPlayerStatus): void;
   hostKickPlayer(clientId: string, toKick: string): void;
   hostUpdateSettings(clientId: string, patch: SettingsPatch): void;
   hostRemoveMod(clientId: string, modId: string): void;
@@ -100,6 +101,13 @@ export class LobbyManager implements ILobbyManager {
   }
 
   // host only
+  hostUpdateStatus(clientId: string, toUpdate: string, status: LobbyPlayerStatus) {
+    const hostId = this.state.settings[LobbyStateHostIdKey];
+    if (hostId !== undefined && clientId !== hostId) {
+      throw new Error('only the host can do this');
+    }
+    this.updateStatus(toUpdate, status);
+  }
   hostKickPlayer(clientId: string, toKick: string) {
     const hostId = this.state.settings[LobbyStateHostIdKey];
     if (hostId !== undefined && clientId !== hostId) {
@@ -131,7 +139,7 @@ export class LobbyManager implements ILobbyManager {
   updateReady(clientId: string, isReady: boolean) {
     const index = this.state.players.findIndex(ps => ps.clientId === clientId);
     if (index < 0) {
-      throw new Error('cannot updateStatus: player mising');
+      throw new Error('cannot updateStatus: player missing');
     }
     if (index < 2) {
       if (index === 0) {

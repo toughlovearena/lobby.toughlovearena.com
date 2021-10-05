@@ -28,16 +28,20 @@ export class FakeLobbyManager implements ILobbyManager {
   }
 
   // host only
+  readonly _hostUpdateStatus: any[] = [];
+  hostUpdateStatus(hostId: string, toUpdate: string, status: LobbyPlayerStatus) {
+    this._hostUpdateStatus.push(toUpdate);
+  }
   readonly _hostKickPlayer: any[] = [];
-  hostKickPlayer(clientId: string, toKick: string) {
+  hostKickPlayer(hostId: string, toKick: string) {
     this._hostKickPlayer.push(toKick);
   }
   readonly _hostUpdateSettings: any[] = [];
-  hostUpdateSettings(clientId: string, patch: SettingsPatch) {
+  hostUpdateSettings(hostId: string, patch: SettingsPatch) {
     this._hostUpdateSettings.push(patch);
   }
   readonly _hostRemoveMod: any[] = [];
-  hostRemoveMod(clientId: string, modId: string) {
+  hostRemoveMod(hostId: string, modId: string) {
     this._hostRemoveMod.push(modId);
   }
 
