@@ -33,6 +33,7 @@ export interface ILobbyManager {
 
 // todo put into types
 const LobbyStateHostIdKey = 'hostId';
+const LobbyStateMaxKey = 'max';
 const LobbyStateReady1Key = 'ready1';
 const LobbyStateReady2Key = 'ready2';
 export class LobbyManager implements ILobbyManager {
@@ -57,6 +58,10 @@ export class LobbyManager implements ILobbyManager {
   register(args: LobbyRegistrationArgs) {
     if (this.clients[args.clientId]) {
       throw new Error('cannot register twice');
+    }
+    const maxPlayers = this.state.settings[LobbyStateMaxKey] ?? 8;
+    if (maxPlayers && maxPlayers <= this.state.players.length) {
+      throw new Error('lobby is full');
     }
     this.clients[args.clientId] = args.cb;
 

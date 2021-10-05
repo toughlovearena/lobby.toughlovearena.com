@@ -59,23 +59,23 @@ export class SocketContainer {
     let data: ClientMessage;
     try {
       data = JSON.parse(msg) as ClientMessage;
+      if (data.type === MessageType.SendRegister) {
+        return this.register(data);
+      }
+      const { comm } = this;
+      if (comm === undefined) {
+        this.pending.push(msg);
+        return;
+      }
+      comm.handleMessage(data);
     } catch (err) {
       this.send({
         type: MessageType.ReplyError,
         message: err.toString(),
       });
-      this.socket.close(400, err.toString());
+      this.socket.close(1007, err.toString());
       return;
     }
-    if (data.type === MessageType.SendRegister) {
-      return this.register(data);
-    }
-    const { comm } = this;
-    if (comm === undefined) {
-      this.pending.push(msg);
-      return;
-    }
-    comm.handleMessage(data);
   }
 
   private cleanup() {
