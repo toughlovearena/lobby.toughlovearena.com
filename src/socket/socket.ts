@@ -4,6 +4,12 @@ import { TimeKeeper } from '../time';
 import { BroadcastMessage, ClientMessage, MessageType, SendRegister } from '../types';
 
 export type CleanupSocket = (sc: SocketContainer) => void;
+type WebSocketStatus = (
+  | typeof WebSocket.CONNECTING
+  | typeof WebSocket.OPEN
+  | typeof WebSocket.CLOSING
+  | typeof WebSocket.CLOSED
+);
 
 export class SocketContainer {
   readonly clientId: string;
@@ -42,6 +48,9 @@ export class SocketContainer {
     socket.on('close', () => this.cleanup());
   }
 
+  getSocketStatus(): WebSocketStatus {
+    return this.socket.readyState;
+  }
   checkAlive() {
     const now = this.timeKeeper.now();
     const diff = now - this.updatedAt;

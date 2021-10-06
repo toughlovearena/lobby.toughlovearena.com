@@ -56,9 +56,7 @@ describe('LobbyConnection', () => {
       type: MessageType.SendRegister,
       tag: 't1',
     };
-    sut.handleMessage(badMessage);
-    expect(inbox.length).toBe(1);
-    expect(inbox[0].type).toBe(MessageType.ReplyError);
+    expect(() => sut.handleMessage(badMessage)).toThrow();
   });
 
   test('handleMessage stops working after leave() is called', () => {

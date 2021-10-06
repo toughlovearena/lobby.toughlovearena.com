@@ -73,7 +73,7 @@ describe('lobbyManager', () => {
 
     const aInbox: BroadcastMessage[] = [];
     sut.register(genLobbyRegistrationArgs('a', msg => aInbox.push(msg)));
-    expect(aInbox.length).toBe(3);
+    expect(aInbox.length).toBe(4);
 
     const modA = genUploadMod('a makes mod').data;
     sut.uploadMod(modA);
@@ -81,14 +81,14 @@ describe('lobbyManager', () => {
       type: MessageType.BroadcastMods,
       state: [modA],
     };
-    expect(aInbox.length).toBe(4);
+    expect(aInbox.length).toBe(5);
 
     const bInbox: BroadcastMessage[] = [];
     sut.register(genLobbyRegistrationArgs('b', msg => bInbox.push(msg)));
-    expect(aInbox.length).toBe(5);
-    expect(bInbox.length).toBe(3);
+    expect(aInbox.length).toBe(6);
+    expect(bInbox.length).toBe(4);
 
-    expect(aInbox[3]).toStrictEqual(broadcast1);
+    expect(aInbox[4]).toStrictEqual(broadcast1);
     expect(bInbox[2]).toStrictEqual(broadcast1);
   });
 });

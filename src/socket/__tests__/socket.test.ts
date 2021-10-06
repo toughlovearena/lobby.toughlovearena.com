@@ -55,11 +55,13 @@ describe('socket', () => {
     expect(ws._closeCount).toBe(1);
   });
 
-  test('register twice caused error', () => {
+  test('register twice caused error, which closes the socket', () => {
     expect(sut.health().lobbyId).toBeUndefined();
     sendMessage(registerData);
     expect(sut.health().lobbyId).toBe(lobbyId);
-    expect(() => sendMessage(registerData)).toThrow();
+    expect(ws._closeCount).toBe(0);
+    sendMessage(registerData);
+    expect(ws._closeCount).toBe(1);
   });
 
   test('register allows sending signals', () => {
@@ -108,7 +110,7 @@ describe('socket', () => {
 
     expect(lobby.health().clients.length).toBe(0);
     sendMessage(registerData);
-    expect(ws._sent.length).toEqual(3);
+    expect(ws._sent.length).toEqual(4);
 
     // setup second socket
     const ws2 = new FakeSocket();
@@ -121,14 +123,14 @@ describe('socket', () => {
     });
 
     ws2._trigger('message', JSON.stringify(registerData));
-    expect(ws._sent.length).toEqual(4);
-    expect(ws2._sent.length).toEqual(3);
+    expect(ws._sent.length).toEqual(5);
+    expect(ws2._sent.length).toEqual(4);
     ws2._trigger('message', JSON.stringify(signalData1));
-    expect(ws._sent.slice(4)).toStrictEqual([JSON.stringify(broadcast1)]);
-    expect(ws2._sent.slice(3)).toStrictEqual([JSON.stringify(broadcast1)]);
+    expect(ws._sent.slice(5)).toStrictEqual([JSON.stringify(broadcast1)]);
+    expect(ws2._sent.slice(4)).toStrictEqual([JSON.stringify(broadcast1)]);
     ws2._trigger('message', JSON.stringify(signalData2));
-    expect(ws._sent.slice(4)).toStrictEqual([JSON.stringify(broadcast1), JSON.stringify(broadcast2)]);
-    expect(ws2._sent.slice(3)).toStrictEqual([JSON.stringify(broadcast1), JSON.stringify(broadcast2)]);
+    expect(ws._sent.slice(5)).toStrictEqual([JSON.stringify(broadcast1), JSON.stringify(broadcast2)]);
+    expect(ws2._sent.slice(4)).toStrictEqual([JSON.stringify(broadcast1), JSON.stringify(broadcast2)]);
   });
 
   test('close on error', () => {
