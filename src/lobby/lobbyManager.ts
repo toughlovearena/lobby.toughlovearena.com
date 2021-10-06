@@ -44,7 +44,9 @@ export class LobbyManager implements ILobbyManager {
   readonly TTL = 30 * 1000; // 30s
   private createdAt: number;
   private state: LobbyState;
-  private matchInputHistory: LobbyInputHistory | undefined;
+  private matchInputHistory: LobbyInputHistory = {
+    history: [],
+  };
   private readonly clients: Record<string, BroadcastCallback> = {};
   constructor(
     readonly lobbyId: string,
@@ -87,7 +89,7 @@ export class LobbyManager implements ILobbyManager {
     this.broadcast(this.getPlayers());
     args.cb(this.getMods());
     args.cb(this.getMatch());
-    if (this.matchInputHistory) {
+    if (this.state.match) {
       args.cb({
         type: MessageType.BroadcastInputHistory,
         state: this.matchInputHistory,
@@ -165,7 +167,7 @@ export class LobbyManager implements ILobbyManager {
 
   // public
   handleInputBatch(batch: LobbyInputBatch) {
-    this.matchInputHistory!.history.push(batch);
+    this.matchInputHistory.history.push(batch);
     const fighters = this.state.players.filter(p => p.status === LobbyPlayerStatus.Queue);
     const spectators = this.state.players.filter(p => p.status === LobbyPlayerStatus.Spectate);
     const toReceive = [...fighters.slice(2), ...spectators];
@@ -200,6 +202,7 @@ export class LobbyManager implements ILobbyManager {
       this.state.settings[LobbyStateReady2Key]
     );
     if (startMatch) {
+      this.matchInputHistory = { history: [], };
       this.state.match = {
         peerId: `SL-${this.lobbyId}-${fighters[0].clientId}`,
         started: false,
@@ -210,7 +213,7 @@ export class LobbyManager implements ILobbyManager {
   updateStatus(clientId: string, status: LobbyPlayerStatus) {
     const player = this.state.players.filter(p => p.clientId === clientId)[0];
     if (!player) {
-      throw new Error('cannot updateStatus: player mising');
+      throw new Error('cannot updateStatus: player missing');
     }
     player.status = status;
     this.state.players = [
@@ -254,25 +257,25 @@ export class LobbyManager implements ILobbyManager {
   private getSettings(): BroadcastSettings {
     return {
       type: MessageType.BroadcastSettings,
-      state: { ...this.state.settings },
+      state: this.state.settings,
     };
   }
   private getPlayers(): BroadcastPlayers {
     return {
       type: MessageType.BroadcastPlayers,
-      state: [...this.state.players],
+      state: this.state.players,
     };
   }
   private getMods(): BroadcastMods {
     return {
       type: MessageType.BroadcastMods,
-      state: [...this.state.mods],
+      state: this.state.mods,
     };
   }
   private getMatch(): BroadcastMatch {
     return {
       type: MessageType.BroadcastMatch,
-      state: { ...this.state.match },
+      state: this.state.match,
     };
   }
   private broadcast(msg: BroadcastMessage) {

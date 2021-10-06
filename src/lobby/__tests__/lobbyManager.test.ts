@@ -4,6 +4,9 @@ import { LobbyManager, LobbyRegistrationArgs } from '../lobbyManager';
 import { EmptyCallback, genUploadMod } from './__mocks__/testHelpers';
 
 describe('lobbyManager', () => {
+  function deepCopy(data: any) {
+    return JSON.parse(JSON.stringify(data));
+  }
   function genLobbyRegistrationArgs(slug: string, cb?: BroadcastCallback): LobbyRegistrationArgs {
     return {
       clientId: slug,
@@ -43,9 +46,9 @@ describe('lobbyManager', () => {
     const sut = new LobbyManager('signal', new FakeTimeKeeper(), () => { });
 
     let aInbox: BroadcastMessage[] = [];
-    sut.register(genLobbyRegistrationArgs('a', msg => aInbox.push(msg)));
+    sut.register(genLobbyRegistrationArgs('a', msg => aInbox.push(deepCopy(msg))));
     let bInbox: BroadcastMessage[] = [];
-    sut.register(genLobbyRegistrationArgs('b', msg => bInbox.push(msg)));
+    sut.register(genLobbyRegistrationArgs('b', msg => bInbox.push(deepCopy(msg))));
     aInbox = [];
     bInbox = [];
 
