@@ -179,7 +179,8 @@ export class LobbyManager implements ILobbyManager {
     });
   }
   updateReady(clientId: string, isReady: boolean) {
-    const index = this.state.players.findIndex(ps => ps.clientId === clientId);
+    const fighters = this.state.players.filter(p => p.status === LobbyPlayerStatus.Queue);
+    const index = fighters.findIndex(ps => ps.clientId === clientId);
     if (index < 0) {
       throw new Error('cannot updateStatus: player missing');
     }

@@ -28,7 +28,10 @@ export interface LobbyState {
   mods: LobbyModState[];
 }
 export interface LobbyInputBatch {
-  data: any; // todo
+  round: number;
+  startTick: number;
+  input1?: string;
+  input2?: string;
 }
 export interface LobbyInputHistory {
   history: LobbyInputBatch[];
