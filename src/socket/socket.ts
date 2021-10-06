@@ -80,7 +80,7 @@ export class SocketContainer {
     } catch (err) {
       this.send({
         type: MessageType.ReplyError,
-        message: err.toString(),
+        message: err.message,
       });
       this.socket.close(1007, err.toString());
       return;

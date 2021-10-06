@@ -132,6 +132,13 @@ export class LobbyManager implements ILobbyManager {
     if (hostId !== undefined && clientId !== hostId) {
       throw new Error('only the host can do this');
     }
+    const toDelete = this.clients[toKick];
+    if (toDelete) {
+      toDelete({
+        type: MessageType.ReplyError,
+        message: 'You were kicked by the host',
+      });
+    }
     this.unregister(toKick);
   }
   hostUpdateSettings(clientId: string, patch: SettingsPatch) {
