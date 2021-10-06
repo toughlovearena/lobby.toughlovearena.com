@@ -29,6 +29,7 @@ export interface ILobbyManager {
   updateStatus(clientId: string, status: LobbyPlayerStatus): void;
   uploadMod(mod: LobbyModState): void;
   patchMatch(patch: LobbyMatchPatch): void;
+  endMatch(loserIds: string[]): void;
 
   health(): LobbyManagerHealth;
 }
@@ -182,11 +183,8 @@ export class LobbyManager implements ILobbyManager {
   updateReady(clientId: string, isReady: boolean) {
     const fighters = this.state.players.filter(p => p.status === LobbyPlayerStatus.Queue);
     const index = fighters.findIndex(ps => ps.clientId === clientId);
-    if (index < 0) {
-      throw new Error('cannot updateStatus: player missing');
-    }
-    if (index >= 2) {
-      // ignore, maybe race condition with ui
+    if (index < 0 || index >= 2) {
+      // ignore, maybe race condition with ui or call from updateStatus
       return;
     }
     if (index === 0) {
@@ -220,6 +218,7 @@ export class LobbyManager implements ILobbyManager {
       player
     ];
     this.broadcast(this.getPlayers());
+    this.updateReady(clientId, false);
   }
   uploadMod(mod: LobbyModState) {
     this.state.mods.push(mod);
@@ -234,6 +233,22 @@ export class LobbyManager implements ILobbyManager {
       ...patch,
     };
     this.broadcast(this.getMatch());
+  }
+  endMatch(loserIds: string[]) {
+    this.state.match = undefined;
+    this.broadcast(this.getMatch());
+
+    this.state.settings[LobbyStateReady1Key] = false;
+    this.state.settings[LobbyStateReady2Key] = false;
+    this.broadcast(this.getSettings());
+
+    const others = this.state.players.filter(p => !loserIds.includes(p.clientId));
+    const losers = this.state.players.filter(p => loserIds.includes(p.clientId));
+    this.state.players = [
+      ...others,
+      ...losers,
+    ];
+    this.broadcast(this.getPlayers());
   }
 
   private getSettings(): BroadcastSettings {

@@ -50,6 +50,9 @@ export class LobbyConnection {
     if (msg.type === MessageType.SendMatchPatch) {
       return this.lobby.patchMatch(msg.state);
     }
+    if (msg.type === MessageType.SendMatchResult) {
+      return this.lobby.endMatch(msg.loserIds);
+    }
     throw new Error('unsupported type: ' + msg.type);
   }
   leave() {

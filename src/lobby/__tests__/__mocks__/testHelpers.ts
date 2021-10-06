@@ -50,10 +50,6 @@ export class FakeLobbyManager implements ILobbyManager {
   handleInputBatch(batch: LobbyInputBatch) {
     this._handleInputBatch.push(batch);
   }
-  readonly _patchMatch: any[] = [];
-  patchMatch(patch: LobbyMatchPatch) {
-    this._patchMatch.push(patch);
-  }
   readonly _updateReady: any[] = [];
   updateReady(clientId: string, isReady: boolean) {
     this._updateReady.push(isReady);
@@ -65,6 +61,14 @@ export class FakeLobbyManager implements ILobbyManager {
   readonly _uploadMod: any[] = [];
   uploadMod(mod: LobbyModState) {
     this._uploadMod.push(mod);
+  }
+  readonly _patchMatch: any[] = [];
+  patchMatch(patch: LobbyMatchPatch) {
+    this._patchMatch.push(patch);
+  }
+  readonly _endMatch: any[] = [];
+  endMatch(loserIds: string[]) {
+    this._endMatch.push(loserIds);
   }
 
   health(): LobbyManagerHealth {

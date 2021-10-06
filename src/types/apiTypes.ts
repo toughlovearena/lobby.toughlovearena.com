@@ -2,6 +2,8 @@ type StateSettingsValue = boolean | number | string
 type StateSettings = Record<string, StateSettingsValue>;
 export type SettingsPatch = Record<string, StateSettingsValue>;
 
+// shared
+
 export interface LobbyMatchState {
   peerId?: string;
   gameConfigJson?: string;
@@ -47,6 +49,7 @@ export enum MessageType {
   BroadcastInputHistory = 'broadcastInputHistory',
   SendInputBatch = 'sendInputBatch',
   SendMatchPatch = 'sendMatchPatch',
+  SendMatchResult = 'sendMatchResult',
   SendRegister = 'register',
   SendReady = 'ready',
   SendUpdateStatus = 'updateStatus',
@@ -88,6 +91,10 @@ export interface SendInputBatch {
 export interface SendMatchPatch {
   type: MessageType.SendMatchPatch;
   state: LobbyMatchPatch;
+}
+export interface SendMatchResult {
+  type: MessageType.SendMatchResult;
+  loserIds: string[];
 }
 export interface SendRegister {
   type: MessageType.SendRegister;
@@ -138,6 +145,7 @@ export type BroadcastMessage = (
 export type ClientMessage = (
   SendInputBatch |
   SendMatchPatch |
+  SendMatchResult |
   SendRegister |
   SendReady |
   SendUpdateStatus |
