@@ -54,7 +54,7 @@ export enum MessageType {
 }
 export interface BroadcastMatch {
   type: MessageType.BroadcastMatch;
-  state: LobbyMatchState;
+  state: LobbyMatchState | undefined;
 }
 export interface BroadcastSettings {
   type: MessageType.BroadcastSettings;
