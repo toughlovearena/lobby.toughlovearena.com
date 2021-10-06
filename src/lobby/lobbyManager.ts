@@ -1,5 +1,5 @@
 import { TimeKeeper } from "../time";
-import { BroadcastCallback, BroadcastInputBatch, BroadcastMatch, BroadcastMessage, BroadcastMods, BroadcastPlayers, BroadcastSettings, LobbyInputBatch, LobbyInputHistory, LobbyModState, LobbyPlayerStatus, LobbyState, MessageType, SettingsPatch } from "../types";
+import { BroadcastCallback, BroadcastInputBatch, BroadcastMatch, BroadcastMessage, BroadcastMods, BroadcastPlayers, BroadcastSettings, LobbyInputBatch, LobbyInputHistory, LobbyMatchPatch, LobbyModState, LobbyPlayerStatus, LobbyState, MessageType, SettingsPatch } from "../types";
 import { LobbyConnection } from "./lobbyConn";
 
 export interface LobbyRegistrationArgs {
@@ -28,6 +28,7 @@ export interface ILobbyManager {
   updateReady(clientId: string, isReady: boolean): void;
   updateStatus(clientId: string, status: LobbyPlayerStatus): void;
   uploadMod(mod: LobbyModState): void;
+  patchMatch(patch: LobbyMatchPatch): void;
 
   health(): LobbyManagerHealth;
 }
@@ -184,14 +185,28 @@ export class LobbyManager implements ILobbyManager {
     if (index < 0) {
       throw new Error('cannot updateStatus: player missing');
     }
-    if (index < 2) {
-      if (index === 0) {
-        this.state.settings[LobbyStateReady1Key] = isReady;
-      }
-      if (index === 1) {
-        this.state.settings[LobbyStateReady2Key] = isReady;
-      }
-      this.broadcast(this.getSettings());
+    if (index >= 2) {
+      // ignore, maybe race condition with ui
+      return;
+    }
+    if (index === 0) {
+      this.state.settings[LobbyStateReady1Key] = isReady;
+    }
+    if (index === 1) {
+      this.state.settings[LobbyStateReady2Key] = isReady;
+    }
+    this.broadcast(this.getSettings());
+    const startMatch = (
+      this.state.match === undefined &&
+      this.state.settings[LobbyStateReady1Key] &&
+      this.state.settings[LobbyStateReady2Key]
+    );
+    if (startMatch) {
+      this.state.match = {
+        peerId: `SL-${this.lobbyId}-${fighters[0].clientId}`,
+        started: false,
+      };
+      this.broadcast(this.getMatch());
     }
   }
   updateStatus(clientId: string, status: LobbyPlayerStatus) {
@@ -209,6 +224,16 @@ export class LobbyManager implements ILobbyManager {
   uploadMod(mod: LobbyModState) {
     this.state.mods.push(mod);
     this.broadcast(this.getMods());
+  }
+  patchMatch(patch: LobbyMatchPatch) {
+    if (this.state.match === undefined) {
+      throw new Error('cannot patch the match before it is created');
+    }
+    this.state.match = {
+      ...this.state.match,
+      ...patch,
+    };
+    this.broadcast(this.getMatch());
   }
 
   private getSettings(): BroadcastSettings {

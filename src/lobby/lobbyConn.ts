@@ -47,6 +47,9 @@ export class LobbyConnection {
     if (msg.type === MessageType.SendInputBatch) {
       return this.lobby.handleInputBatch(msg.state);
     }
+    if (msg.type === MessageType.SendMatchPatch) {
+      return this.lobby.patchMatch(msg.state);
+    }
     throw new Error('unsupported type: ' + msg.type);
   }
   leave() {

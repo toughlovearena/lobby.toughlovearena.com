@@ -7,6 +7,7 @@ export interface LobbyMatchState {
   gameConfigJson?: string;
   started: boolean;
 }
+export type LobbyMatchPatch = Partial<LobbyMatchState>;
 export enum LobbyPlayerStatus {
   Queue = 'queue',
   Spectate = 'spectate',
@@ -45,6 +46,7 @@ export enum MessageType {
   BroadcastInputBatch = 'broadcastInputBatch',
   BroadcastInputHistory = 'broadcastInputHistory',
   SendInputBatch = 'sendInputBatch',
+  SendMatchPatch = 'sendMatchPatch',
   SendRegister = 'register',
   SendReady = 'ready',
   SendUpdateStatus = 'updateStatus',
@@ -82,6 +84,10 @@ export interface BroadcastInputHistory {
 export interface SendInputBatch {
   type: MessageType.SendInputBatch;
   state: LobbyInputBatch;
+}
+export interface SendMatchPatch {
+  type: MessageType.SendMatchPatch;
+  state: LobbyMatchPatch;
 }
 export interface SendRegister {
   type: MessageType.SendRegister;
@@ -131,6 +137,7 @@ export type BroadcastMessage = (
 );
 export type ClientMessage = (
   SendInputBatch |
+  SendMatchPatch |
   SendRegister |
   SendReady |
   SendUpdateStatus |

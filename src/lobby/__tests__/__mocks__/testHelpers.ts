@@ -1,5 +1,5 @@
 import { ILobbyManager, LobbyConnection, LobbyManagerHealth, LobbyRegistrationArgs } from "../..";
-import { BroadcastCallback, LobbyInputBatch, LobbyModState, LobbyPlayerStatus, MessageType, SendUploadMod, SettingsPatch } from "../../../types";
+import { BroadcastCallback, LobbyInputBatch, LobbyMatchPatch, LobbyModState, LobbyPlayerStatus, MessageType, SendUploadMod, SettingsPatch } from "../../../types";
 
 export const EmptyCallback: BroadcastCallback = () => {
   // do nothing
@@ -49,6 +49,10 @@ export class FakeLobbyManager implements ILobbyManager {
   readonly _handleInputBatch: any[] = [];
   handleInputBatch(batch: LobbyInputBatch) {
     this._handleInputBatch.push(batch);
+  }
+  readonly _patchMatch: any[] = [];
+  patchMatch(patch: LobbyMatchPatch) {
+    this._patchMatch.push(patch);
   }
   readonly _updateReady: any[] = [];
   updateReady(clientId: string, isReady: boolean) {
