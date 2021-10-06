@@ -5,6 +5,9 @@ how to setup on unbuntu
 ### setup nginx
 
 ```bash
+
+sudo apt update
+
 # setup nginx to serve hello page
 sudo apt install nginx
 
@@ -17,6 +20,8 @@ systemctl restart nginx
 ```
 
 ### setup certbot
+
+you need to have DNS setup first, or certbot will fail
 
 ```bash
 
@@ -47,6 +52,7 @@ nvm install 14.7.1
 
 git clone https://github.com/toughlovearena/lobby.toughlovearena.com.git
 cd lobby.toughlovearena.com
+nvm use
 npm i
 
 ```
