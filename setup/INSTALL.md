@@ -52,7 +52,9 @@ nvm install 14.7.1
 
 git clone https://github.com/toughlovearena/lobby.toughlovearena.com.git
 cd lobby.toughlovearena.com
+git checkout prod
 nvm use
 npm i
+npm run bg
 
 ```

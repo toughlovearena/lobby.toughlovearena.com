@@ -5,9 +5,11 @@ export type SettingsPatch = Record<string, StateSettingsValue>;
 // shared
 
 export interface LobbyMatchState {
-  peerId?: string;
+  clientId1: string;
+  clientId2: string;
+  peerId: string;
   gameConfigJson?: string;
-  started: boolean;
+  p2pDisconnected: boolean;
 }
 export type LobbyMatchPatch = Partial<LobbyMatchState>;
 export enum LobbyPlayerStatus {

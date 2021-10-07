@@ -204,8 +204,10 @@ export class LobbyManager implements ILobbyManager {
     if (startMatch) {
       this.matchInputHistory = { history: [], };
       this.state.match = {
+        clientId1: fighters[0].clientId,
+        clientId2: fighters[1].clientId,
         peerId: `SL-${this.lobbyId}-${fighters[0].clientId}`,
-        started: false,
+        p2pDisconnected: false,
       };
       this.broadcast(this.getMatch());
     }
@@ -231,11 +233,22 @@ export class LobbyManager implements ILobbyManager {
     if (this.state.match === undefined) {
       throw new Error('cannot patch the match before it is created');
     }
+    const oldDC = this.state.match.p2pDisconnected;
     this.state.match = {
       ...this.state.match,
       ...patch,
     };
     this.broadcast(this.getMatch());
+    if (oldDC !== this.state.match.p2pDisconnected) {
+      setTimeout(() => {
+        if (this.state.match) {
+          const clientsInMatch = [this.state.match.clientId1, this.state.match.clientId2];
+          const clientsStillPresent = this.state.players.filter(p => clientsInMatch.includes(p.clientId));
+          const losers = clientsStillPresent.length === 2 ? clientsInMatch : [];
+          this.endMatch(losers);
+        }
+      }, 3000);
+    }
   }
   endMatch(loserIds: string[]) {
     this.state.match = undefined;
