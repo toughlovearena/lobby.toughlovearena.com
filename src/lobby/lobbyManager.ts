@@ -217,13 +217,13 @@ export class LobbyManager implements ILobbyManager {
     if (!player) {
       throw new Error('cannot updateStatus: player missing');
     }
+    this.updateReady(clientId, false);
     player.status = status;
     this.state.players = [
       ...this.state.players.filter(p => p.clientId !== clientId),
       player
     ];
     this.broadcast(this.getPlayers());
-    this.updateReady(clientId, false);
   }
   uploadMod(mod: LobbyModState) {
     this.state.mods.push(mod);
