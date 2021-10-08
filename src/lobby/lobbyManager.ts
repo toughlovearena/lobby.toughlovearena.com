@@ -251,6 +251,9 @@ export class LobbyManager implements ILobbyManager {
     }
   }
   endMatch(loserIds: string[]) {
+    // idempotent
+    if (this.state.match === undefined) { return; }
+
     this.state.match = undefined;
     this.broadcast(this.getMatch());
 
