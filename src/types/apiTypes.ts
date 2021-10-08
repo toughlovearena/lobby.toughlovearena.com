@@ -18,6 +18,7 @@ export enum LobbyPlayerStatus {
 }
 export interface LobbyPlayerState {
   status: LobbyPlayerStatus;
+  createdAt: number;
   clientId: string;
   tag: string;
 }

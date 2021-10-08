@@ -1,5 +1,6 @@
 import { TimeKeeper } from "../time";
 import { BroadcastCallback, BroadcastInputBatch, BroadcastMatch, BroadcastMessage, BroadcastMods, BroadcastPlayers, BroadcastSettings, LobbyInputBatch, LobbyInputHistory, LobbyMatchPatch, LobbyModState, LobbyPlayerStatus, LobbyState, MessageType, SettingsPatch } from "../types";
+import { sortArrayOfObjects } from "../util";
 import { LobbyConnection } from "./lobbyConn";
 
 export interface LobbyRegistrationArgs {
@@ -81,6 +82,7 @@ export class LobbyManager implements ILobbyManager {
     }
     this.state.players.push({
       status: LobbyPlayerStatus.Queue,
+      createdAt: this.timeKeeper.now(),
       clientId: args.clientId,
       tag: args.tag,
     });
@@ -108,7 +110,8 @@ export class LobbyManager implements ILobbyManager {
 
     this.state.players = this.state.players.filter(p => p.clientId !== clientId);
     if (this.state.settings[LobbyStateHostIdKey] === clientId) {
-      this.state.settings[LobbyStateHostIdKey] = this.state.players[0]?.clientId ?? 'n/a';
+      const oldestPlayer = sortArrayOfObjects(this.state.players, p => p.createdAt)[0];
+      this.state.settings[LobbyStateHostIdKey] = oldestPlayer?.clientId ?? 'n/a';
       this.broadcast(this.getSettings());
     }
 
