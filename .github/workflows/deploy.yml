@@ -42,7 +42,7 @@ jobs:
     - name: Test
       run: npm run ci-test
 
-    - name: Check Deploy Branch
+    - name: Deploy Branch
       run: |
-        branch="prod-$(node bin/echoBranch.js)"
-        echo "$branch"
+        branch=$(node bin/echoBranch.js)
+        git push -f origin "HEAD:prod-$branch"
