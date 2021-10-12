@@ -1,14 +1,20 @@
 import { Updater } from '@toughlovearena/updater';
 import cors from 'cors';
 import WebSocketExpress, { Router } from 'websocket-express';
+import gbConfig from './greenblue.json';
 import { LobbyRegistrar } from './lobby';
 import { SocketManager } from './socket';
 import { RealClock } from './time';
+import { GreenBlueConfig } from './types';
 
 export class Server {
+  private readonly port: number;
   private app = new WebSocketExpress();
 
   constructor(updater: Updater) {
+    const { branch, port } = this.readConfig();
+    this.port = port;
+
     const router = new Router();
     const lobbyRegistrar = new LobbyRegistrar(RealClock);
     const socketManager = new SocketManager(RealClock);
@@ -20,6 +26,7 @@ export class Server {
       const gitHash = await updater.gitter.hash();
       const data = {
         gitHash,
+        branch,
         started: new Date(updater.startedAt),
         testVer: 3,
         lobbies: lobbyRegistrar.health(),
@@ -54,7 +61,23 @@ export class Server {
     }, period);
   }
 
-  listen(port: number) {
+  private readConfig(): { branch: string, port: number, } {
+    let branch = 'n/a';
+    let port = 2400;
+    const config = gbConfig as GreenBlueConfig;
+    if (config.branch === 'lobbya') {
+      branch = config.branch;
+      port = 2401;
+    }
+    if (config.branch === 'lobbyb') {
+      branch = config.branch;
+      port = 2402;
+    }
+    return { branch, port };
+  }
+
+  listen() {
+    const { port } = this;
     this.app.createServer().listen(port, () => {
       // tslint:disable-next-line:no-console
       console.log(`server started at http://localhost:${port}`);
