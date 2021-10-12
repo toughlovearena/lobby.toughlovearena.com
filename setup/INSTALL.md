@@ -48,11 +48,24 @@ nvm install 14.7.1
 
 ### setup repo
 
+The Lobby server is unique, in that it supports two different prod environments for blue-green deploys.
+
 ```bash
 
+cd ~
 git clone https://github.com/toughlovearena/lobby.toughlovearena.com.git
-cd lobby.toughlovearena.com
-git checkout prod
+mv lobby.toughlovearena.com prod-lobbya
+cd prod-lobbya
+git checkout prod-lobbya
+nvm use
+npm i
+npm run bg
+
+cd ~
+git clone https://github.com/toughlovearena/lobby.toughlovearena.com.git
+mv lobby.toughlovearena.com prod-lobbyb
+cd prod-lobbyb
+git checkout prod-lobbyb
 nvm use
 npm i
 npm run bg
