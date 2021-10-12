@@ -12,7 +12,7 @@ export class Server {
   private app = new WebSocketExpress();
 
   constructor(updater: Updater) {
-    const { branch, port } = this.readConfig();
+    const { branch, port } = Server.readConfig();
     this.port = port;
 
     const router = new Router();
@@ -61,7 +61,15 @@ export class Server {
     }, period);
   }
 
-  private readConfig(): { branch: string, port: number, } {
+  listen() {
+    const { port } = this;
+    this.app.createServer().listen(port, () => {
+      // tslint:disable-next-line:no-console
+      console.log(`server started at http://localhost:${port}`);
+    });
+  }
+
+  static readConfig(): { branch: string, port: number, } {
     let branch = 'n/a';
     let port = 2400;
     const config = gbConfig as GreenBlueConfig;
@@ -74,13 +82,5 @@ export class Server {
       port = 2402;
     }
     return { branch, port };
-  }
-
-  listen() {
-    const { port } = this;
-    this.app.createServer().listen(port, () => {
-      // tslint:disable-next-line:no-console
-      console.log(`server started at http://localhost:${port}`);
-    });
   }
 }
