@@ -45,4 +45,4 @@ jobs:
     - name: Check Deploy Branch
       run: |
         branch="prod-$(node bin/echoBranch.js)"
-        echo branch
+        echo "$branch"
