@@ -15,56 +15,56 @@ describe('lobbyRegistrar', () => {
   test('create() and get()', async () => {
     const tk = new FakeTimeKeeper();
     const sut = new LobbyRegistrar(tk);
-    expect(sut.health().length).toBe(0);
+    expect(sut.health().lobbies.length).toBe(0);
 
     expect(sut.get('dne')).toBeUndefined();
     const created = await sut.create();
-    expect(sut.health().length).toBe(1);
+    expect(sut.health().lobbies.length).toBe(1);
 
     const actual = sut.get(created.lobbyId);
     expect(actual).toBeTruthy();
     expect(actual).toEqual(created);
   });
 
-  test('pruneAll()', async () => {
+  test('checkPrune()', async () => {
     const tk = new FakeTimeKeeper();
     const sut = new LobbyRegistrar(tk);
 
-    expect(sut.pruneAll()).toBe(0);
-    expect(sut.health().length).toBe(0);
+    expect(sut.checkPrune()).toBe(0);
+    expect(sut.health().lobbies.length).toBe(0);
 
     const created = await sut.create();
-    expect(sut.health().length).toBe(1);
+    expect(sut.health().lobbies.length).toBe(1);
 
-    expect(sut.pruneAll()).toBe(0);
-    expect(sut.health().length).toBe(1);
+    expect(sut.checkPrune()).toBe(0);
+    expect(sut.health().lobbies.length).toBe(1);
 
     tk._increment(created.TTL);
-    expect(sut.pruneAll()).toBe(0);
-    expect(sut.health().length).toBe(1);
+    expect(sut.checkPrune()).toBe(0);
+    expect(sut.health().lobbies.length).toBe(1);
 
     tk._increment(1);
-    expect(sut.pruneAll()).toBe(1);
-    expect(sut.health().length).toBe(0);
+    expect(sut.checkPrune()).toBe(1);
+    expect(sut.health().lobbies.length).toBe(0);
   });
 
   test('leave() removes empty rooms', async () => {
     const tk = new FakeTimeKeeper();
     const sut = new LobbyRegistrar(tk);
-    expect(sut.health().length).toBe(0);
+    expect(sut.health().lobbies.length).toBe(0);
 
     const lobby = await sut.create();
     const comm1 = lobby.register(genLobbyArgs('c1'))
     const comm2 = lobby.register(genLobbyArgs('c2'));
-    expect(sut.health().length).toBe(1);
-    expect(sut.health()[0].clients.length).toBe(2);
+    expect(sut.health().lobbies.length).toBe(1);
+    expect(sut.health().lobbies[0].clients.length).toBe(2);
     tk._increment(lobby.TTL + 1);
 
     comm1.leave();
-    expect(sut.health().length).toBe(1);
-    expect(sut.health()[0].clients.length).toBe(1);
+    expect(sut.health().lobbies.length).toBe(1);
+    expect(sut.health().lobbies[0].clients.length).toBe(1);
 
     comm2.leave();
-    expect(sut.health().length).toBe(0);
+    expect(sut.health().lobbies.length).toBe(0);
   });
 });
