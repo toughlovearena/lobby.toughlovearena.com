@@ -31,7 +31,7 @@ export class SocketManager {
 
   health() {
     return {
-      total: this.clientCount,
+      allTime: this.clientCount,
       clients: Object.values(this.sockets).map(s => s.health()),
     };
   }

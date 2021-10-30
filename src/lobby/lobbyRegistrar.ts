@@ -2,6 +2,7 @@ import { TimeKeeper } from "../time";
 import { LobbyManager } from "./lobbyManager";
 
 export class LobbyRegistrar {
+  private lobbyCount = 0;
   private readonly lookup: Record<string, LobbyManager> = {};
   constructor(private readonly timeKeeper: TimeKeeper) { }
 
@@ -11,6 +12,7 @@ export class LobbyRegistrar {
       await this.timeKeeper.sleep(7);
       return this.create();
     }
+    this.lobbyCount++;
     const lobby = new LobbyManager(lobbyId, this.timeKeeper, () => this.checkPrune(lobbyId));
     setTimeout(() => this.checkPrune(lobbyId), lobby.TTL + 1);
     this.lookup[lobbyId] = lobby;
@@ -39,6 +41,9 @@ export class LobbyRegistrar {
   }
 
   health() {
-    return Object.values(this.lookup).map(group => group.health());
+    return {
+      allTime: this.lobbyCount,
+      lobbies: Object.values(this.lookup).map(group => group.health()),
+    };
   }
 }

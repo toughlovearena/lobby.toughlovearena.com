@@ -32,14 +32,16 @@ export class Server {
         started: new Date(updater.startedAt),
         testVer: 0,
         lobbies: {
-          total: lobbyData.length,
-          rooms: lobbyData.map(ld => ({
+          allTime: lobbyData.allTime,
+          total: lobbyData.lobbies.length,
+          rooms: lobbyData.lobbies.map(ld => ({
             createdAt: new Date(ld.createdAt),
             clients: ld.clients.length,
           })),
         },
         sockets: {
-          total: socketData.total,
+          allTime: socketData.allTime,
+          total: socketData.clients.length,
           clients: socketData.clients.map(sd => ({
             createdAt: new Date(sd.createdAt),
             updatedAt: new Date(sd.updatedAt),
