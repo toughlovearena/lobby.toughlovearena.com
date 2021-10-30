@@ -30,7 +30,7 @@ export class Server {
         gitHash,
         branch,
         started: new Date(updater.startedAt),
-        testVer: 3,
+        testVer: 0,
         lobbies: {
           total: lobbyData.length,
           rooms: lobbyData.map(ld => ({
