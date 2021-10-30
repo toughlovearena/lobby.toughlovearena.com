@@ -13,8 +13,8 @@ export class LobbyRegistrar {
       return this.create();
     }
     this.lobbyCount++;
-    const lobby = new LobbyManager(lobbyId, this.timeKeeper, () => this.checkPrune(lobbyId));
-    setTimeout(() => this.checkPrune(lobbyId), lobby.TTL + 1);
+    const lobby = new LobbyManager(lobbyId, this.timeKeeper, () => this.checkPrune());
+    setTimeout(() => this.checkPrune(), lobby.TTL + 1);
     this.lookup[lobbyId] = lobby;
     return lobby;
   }
@@ -22,13 +22,7 @@ export class LobbyRegistrar {
     return this.lookup[lobbyId];
   }
 
-  checkPrune(lobbyId: string) {
-    if (this.lookup[lobbyId]?.isDead()) {
-      delete this.lookup[lobbyId];
-    }
-  }
-  // todo cron to get orphans?
-  pruneAll(): number {
+  checkPrune(): number {
     const keys = Object.keys(this.lookup);
     let pruned = 0;
     keys.forEach(lobbyId => {
