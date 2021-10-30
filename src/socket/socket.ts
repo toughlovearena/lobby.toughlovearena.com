@@ -22,7 +22,7 @@ export class SocketContainer {
   static readonly TTL = 10 * 60 * 1000; // 10 minutes
 
   // stateful
-  private comm: LobbyConnection;
+  private comm: LobbyConnection | undefined;
   private pending: string[] = [];
 
   constructor(deps: {
@@ -119,6 +119,8 @@ export class SocketContainer {
       clientId: this.clientId,
       lobbyId: this.comm?.lobbyId,
       pending: this.pending,
+      createdAt: this.createdAt,
+      updatedAt: this.updatedAt,
       ageInSeconds: Math.ceil((this.timeKeeper.now() - this.updatedAt) / 1000),
     };
   }

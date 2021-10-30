@@ -24,13 +24,28 @@ export class Server {
     });
     router.get('/health', async (req, res) => {
       const gitHash = await updater.gitter.hash();
+      const lobbyData = lobbyRegistrar.health();
+      const socketData = socketManager.health();
       const data = {
         gitHash,
         branch,
         started: new Date(updater.startedAt),
         testVer: 3,
-        lobbies: lobbyRegistrar.health(),
-        sockets: socketManager.health(),
+        lobbies: {
+          total: lobbyData.length,
+          rooms: lobbyData.map(ld => ({
+            createdAt: new Date(ld.createdAt),
+            clients: ld.clients.length,
+          })),
+        },
+        sockets: {
+          total: socketData.total,
+          clients: socketData.clients.map(sd => ({
+            createdAt: new Date(sd.createdAt),
+            updatedAt: new Date(sd.updatedAt),
+            connected: !!sd.lobbyId,
+          }))
+        },
       };
       res.send(data);
     });

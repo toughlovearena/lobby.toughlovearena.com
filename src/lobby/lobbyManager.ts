@@ -43,7 +43,7 @@ const LobbyStateReady1Key = 'ready1';
 const LobbyStateReady2Key = 'ready2';
 export class LobbyManager implements ILobbyManager {
   readonly TTL = 30 * 1000; // 30s
-  private createdAt: number;
+  private readonly createdAt: number;
   private state: LobbyState;
   private matchInputHistory: LobbyInputHistory = {
     history: [],
@@ -306,6 +306,7 @@ export class LobbyManager implements ILobbyManager {
   health() {
     return {
       lobbyId: this.lobbyId,
+      createdAt: this.createdAt,
       state: this.state,
       clients: Object.keys(this.clients),
     };
