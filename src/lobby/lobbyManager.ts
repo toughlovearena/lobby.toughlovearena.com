@@ -234,6 +234,11 @@ export class LobbyManager implements ILobbyManager {
   }
   patchMatch(patch: LobbyMatchPatch) {
     if (this.state.match === undefined) {
+      if (patch.p2pDisconnected) {
+        // we want this DC call to be idempotent, fail silently
+        return;
+      }
+      // else
       throw new Error('cannot patch the match before it is created');
     }
     const oldDC = this.state.match.p2pDisconnected;
