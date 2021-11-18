@@ -1,23 +1,20 @@
-import { BroadcastCallback, ClientMessage, MessageType } from "../types";
+import { ClientMessage, MessageType } from "../types";
 import { ILobbyManager, LobbyManager } from "./lobbyManager";
 
 export class LobbyConnection {
   readonly lobbyId: string;
   readonly clientId: string;
   private readonly lobby: ILobbyManager;
-  private readonly cb: BroadcastCallback;
   private readonly onLeave: () => void;
   private hasLeft = false;
   constructor(args: {
     clientId: string;
     lobby: LobbyManager;
-    cb: BroadcastCallback;
     onLeave: () => void;
   }) {
     this.lobbyId = args.lobby.lobbyId;
     this.clientId = args.clientId;
     this.lobby = args.lobby;
-    this.cb = args.cb;
     this.onLeave = args.onLeave;
   }
 

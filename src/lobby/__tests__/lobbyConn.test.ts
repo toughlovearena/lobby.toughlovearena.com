@@ -1,4 +1,4 @@
-import { BroadcastMessage, LobbyPlayerStatus, MessageType, SendHostRemoveMod, SendHostUpdateSettings, SendRegister, SendUpdateStatus, SendUploadMod } from '../../types';
+import { LobbyPlayerStatus, MessageType, SendHostRemoveMod, SendHostUpdateSettings, SendRegister, SendUpdateStatus, SendUploadMod } from '../../types';
 import { LobbyConnection } from '../lobbyConn';
 import { LobbyManager } from '../lobbyManager';
 import { FakeLobbyManager, genUploadMod } from './__mocks__/testHelpers';
@@ -6,17 +6,14 @@ import { FakeLobbyManager, genUploadMod } from './__mocks__/testHelpers';
 describe('LobbyConnection', () => {
   let fakeLobby: FakeLobbyManager;
   let leaveCount: number;
-  let inbox: BroadcastMessage[];
   let sut: LobbyConnection;
 
   beforeEach(() => {
     fakeLobby = new FakeLobbyManager();
     leaveCount = 0;
-    inbox = [];
     sut = new LobbyConnection({
       clientId: 'c1',
       lobby: fakeLobby as any as LobbyManager,
-      cb: sm => inbox.push(sm),
       onLeave: () => leaveCount++,
     });
   });

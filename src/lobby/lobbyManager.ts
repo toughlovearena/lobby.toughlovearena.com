@@ -101,7 +101,6 @@ export class LobbyManager implements ILobbyManager {
     return new LobbyConnection({
       clientId: args.clientId,
       lobby: this,
-      cb: args.cb,
       onLeave: () => this.unregister(args.clientId),
     });
   }
