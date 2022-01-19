@@ -22,15 +22,15 @@ describe('socket', () => {
   };
   const signalData1: SendUploadMod = {
     type: MessageType.SendUploadMod,
-    data: { modId: 'id1', configJson: 'data1', },
+    data: { modId: 'id1', filename: 'file-1', zip64: 'zip64-1', },
   };
   const signalData2: SendUploadMod = {
     type: MessageType.SendUploadMod,
-    data: { modId: 'id2', configJson: 'data2', },
+    data: { modId: 'id2', filename: 'file-2', zip64: 'zip64-2', },
   };
   const signalData3: SendUploadMod = {
     type: MessageType.SendUploadMod,
-    data: { modId: 'id3', configJson: 'data3', },
+    data: { modId: 'id3', filename: 'file-3', zip64: 'zip64-3', },
   };
 
   beforeEach(() => {

@@ -24,7 +24,8 @@ export interface LobbyPlayerState {
 }
 export interface LobbyModState {
   modId: string;
-  configJson: string;
+  filename: string;
+  zip64: string;
 }
 export interface LobbyState {
   lobbyId: string;

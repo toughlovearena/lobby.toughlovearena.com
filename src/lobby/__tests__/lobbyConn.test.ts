@@ -35,7 +35,7 @@ describe('LobbyConnection', () => {
 
     const uploadMod: SendUploadMod = {
       type: MessageType.SendUploadMod,
-      data: { modId: 'dne', configJson: 'json', },
+      data: { modId: 'dne', filename: 'filename', zip64: 'zip64', },
     };
     sut.handleMessage(uploadMod);
     expect(fakeLobby._uploadMod).toStrictEqual([uploadMod.data]);

@@ -10,7 +10,8 @@ export function genUploadMod(slug: string): SendUploadMod {
     type: MessageType.SendUploadMod,
     data: {
       modId: slug,
-      configJson: 'json-' + slug,
+      filename: 'filename-' + slug,
+      zip64: 'zip64-' + slug,
     },
   };
 }
