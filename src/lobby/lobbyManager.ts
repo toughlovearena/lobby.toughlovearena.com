@@ -89,7 +89,10 @@ export class LobbyManager implements ILobbyManager {
 
     args.cb(this.getSettings());
     this.broadcast(this.getPlayers());
+
+    // send mods before match to ensure FE can establish lock and load mods before match info
     args.cb(this.getMods());
+
     args.cb(this.getMatch());
     if (this.state.match) {
       args.cb({
