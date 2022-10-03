@@ -104,6 +104,7 @@ export class SocketContainer {
     this.comm = this.lobby.register({
       clientId: this.clientId,
       tag: data.tag,
+      nick: data.nick,
       cb: cbdata => this.send(cbdata),
     });
     this.processPending();

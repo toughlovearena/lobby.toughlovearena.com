@@ -106,6 +106,7 @@ export interface SendMatchResult {
 export interface SendRegister {
   type: MessageType.SendRegister;
   tag: string;
+  nick?: string;
 }
 export interface SendReady {
   type: MessageType.SendReady;

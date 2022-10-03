@@ -6,6 +6,7 @@ import { LobbyConnection } from "./lobbyConn";
 export interface LobbyRegistrationArgs {
   clientId: string,
   tag: string,
+  nick?: string;
   cb: BroadcastCallback,
 }
 export interface LobbyManagerHealth {
@@ -86,6 +87,7 @@ export class LobbyManager implements ILobbyManager {
       createdAt: this.timeKeeper.now(),
       clientId: args.clientId,
       tag: args.tag,
+      nick: this.sanitizeNick(args.nick),
     });
 
     args.cb(this.getSettings());
@@ -223,7 +225,7 @@ export class LobbyManager implements ILobbyManager {
     if (!player) {
       throw new Error('cannot updateNick: player missing');
     }
-    player.nick = nick ? nick.trim().slice(0, LobbyPlayerNickMaxLength) : undefined;
+    player.nick = this.sanitizeNick(nick);
     this.broadcast(this.getPlayers());
   }
   updateStatus(clientId: string, status: LobbyPlayerStatus) {
@@ -288,6 +290,10 @@ export class LobbyManager implements ILobbyManager {
       ...losers,
     ];
     this.broadcast(this.getPlayers());
+  }
+
+  private sanitizeNick(nick?: string): string | undefined {
+    return nick ? nick.trim().slice(0, LobbyPlayerNickMaxLength) : undefined;
   }
 
   private getSettings(): BroadcastSettings {
