@@ -23,6 +23,9 @@ export class LobbyConnection {
     if (msg.type === MessageType.SendReady) {
       return this.lobby.updateReady(this.clientId, msg.ready);
     }
+    if (msg.type === MessageType.SendUpdateNick) {
+      return this.lobby.updateNick(this.clientId, msg.nick);
+    }
     if (msg.type === MessageType.SendUpdateStatus) {
       return this.lobby.updateStatus(this.clientId, msg.status);
     }

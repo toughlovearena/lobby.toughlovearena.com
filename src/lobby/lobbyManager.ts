@@ -27,6 +27,7 @@ export interface ILobbyManager {
   // public
   handleInputBatch(batch: LobbyInputBatch): void;
   updateReady(clientId: string, isReady: boolean): void;
+  updateNick(clientId: string, nick?: string): void;
   updateStatus(clientId: string, status: LobbyPlayerStatus): void;
   uploadMod(mod: LobbyModState): void;
   patchMatch(patch: LobbyMatchPatch): void;
@@ -217,6 +218,14 @@ export class LobbyManager implements ILobbyManager {
       this.broadcast(this.getMatch());
     }
   }
+  updateNick(clientId: string, nick?: string) {
+    const player = this.state.players.filter(p => p.clientId === clientId)[0];
+    if (!player) {
+      throw new Error('cannot updateNick: player missing');
+    }
+    player.nick = nick || undefined;
+    this.broadcast(this.getPlayers());
+  }
   updateStatus(clientId: string, status: LobbyPlayerStatus) {
     const player = this.state.players.filter(p => p.clientId === clientId)[0];
     if (!player) {
@@ -224,6 +233,7 @@ export class LobbyManager implements ILobbyManager {
     }
     this.updateReady(clientId, false);
     player.status = status;
+    // move to the bottom
     this.state.players = [
       ...this.state.players.filter(p => p.clientId !== clientId),
       player

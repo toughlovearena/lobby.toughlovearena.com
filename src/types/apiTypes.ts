@@ -21,6 +21,7 @@ export interface LobbyPlayerState {
   createdAt: number;
   clientId: string;
   tag: string;
+  nick?: string;
 }
 export interface LobbyModState {
   modId: string;
@@ -56,6 +57,7 @@ export enum MessageType {
   SendMatchResult = 'sendMatchResult',
   SendRegister = 'register',
   SendReady = 'ready',
+  SendUpdateNick = 'updateNick',
   SendUpdateStatus = 'updateStatus',
   SendHostUpdateStatus = 'hostSetStatus',
   SendHostKickPlayer = 'kickPlayer',
@@ -108,6 +110,10 @@ export interface SendReady {
   type: MessageType.SendReady;
   ready: boolean;
 }
+export interface SendUpdateNick {
+  type: MessageType.SendUpdateNick;
+  nick?: string;
+}
 export interface SendUpdateStatus {
   type: MessageType.SendUpdateStatus;
   status: LobbyPlayerStatus;
@@ -152,6 +158,7 @@ export type ClientMessage = (
   SendMatchResult |
   SendRegister |
   SendReady |
+  SendUpdateNick |
   SendUpdateStatus |
   SendHostUpdateStatus |
   SendHostKickPlayer |
