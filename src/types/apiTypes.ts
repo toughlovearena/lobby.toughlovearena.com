@@ -16,6 +16,7 @@ export enum LobbyPlayerStatus {
   Queue = 'queue',
   Spectate = 'spectate',
 }
+export const LobbyPlayerNickMaxLength = 12;
 export interface LobbyPlayerState {
   status: LobbyPlayerStatus;
   createdAt: number;

@@ -1,5 +1,5 @@
 import { TimeKeeper } from "../time";
-import { BroadcastCallback, BroadcastInputBatch, BroadcastMatch, BroadcastMessage, BroadcastMods, BroadcastPlayers, BroadcastSettings, LobbyInputBatch, LobbyInputHistory, LobbyMatchPatch, LobbyModState, LobbyPlayerStatus, LobbyState, MessageType, SettingsPatch } from "../types";
+import { BroadcastCallback, BroadcastInputBatch, BroadcastMatch, BroadcastMessage, BroadcastMods, BroadcastPlayers, BroadcastSettings, LobbyInputBatch, LobbyInputHistory, LobbyMatchPatch, LobbyModState, LobbyPlayerNickMaxLength, LobbyPlayerStatus, LobbyState, MessageType, SettingsPatch } from "../types";
 import { sortArrayOfObjects } from "../util";
 import { LobbyConnection } from "./lobbyConn";
 
@@ -223,7 +223,7 @@ export class LobbyManager implements ILobbyManager {
     if (!player) {
       throw new Error('cannot updateNick: player missing');
     }
-    player.nick = nick || undefined;
+    player.nick = nick ? nick.slice(0, LobbyPlayerNickMaxLength) : undefined;
     this.broadcast(this.getPlayers());
   }
   updateStatus(clientId: string, status: LobbyPlayerStatus) {
