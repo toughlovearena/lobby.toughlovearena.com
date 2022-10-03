@@ -11,6 +11,9 @@ Lobbies currently have two virtual servers with their own URLs running on a sing
 
 This is to enable [Blue-Green Deployment](https://en.wikipedia.org/wiki/Blue-green_deployment). The game client will only ever point to the current stable server (this is currently a manual code change that requires a version update). This allows easy migration across breaking API changes.
 
+- [compare a vs b](https://github.com/toughlovearena/lobby.toughlovearena.com/compare/prod-lobbya...prod-lobbyb)
+- [compare b vs a](https://github.com/toughlovearena/lobby.toughlovearena.com/compare/prod-lobbyb...prod-lobbya)
+
 ## How and when to deploy
 
 Both servers (A and B) are live at all times and continuously deploying. Whenever you push to main, CD checks [greenblue.json](src/greenblue.json) to see which branch it should deploy to. That server will detect the changes to it's branch within 5 minutes and then reboot itself. However, this is a destruction action since lobbies rely on WebSockets, so we don't want to push to a branch that's currently being used.
