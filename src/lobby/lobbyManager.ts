@@ -223,7 +223,7 @@ export class LobbyManager implements ILobbyManager {
     if (!player) {
       throw new Error('cannot updateNick: player missing');
     }
-    player.nick = nick ? nick.slice(0, LobbyPlayerNickMaxLength) : undefined;
+    player.nick = nick ? nick.trim().slice(0, LobbyPlayerNickMaxLength) : undefined;
     this.broadcast(this.getPlayers());
   }
   updateStatus(clientId: string, status: LobbyPlayerStatus) {
