@@ -41,6 +41,7 @@ export interface ILobbyManager {
 const LobbyStateHostIdKey = 'hostId';
 const LobbyStateMaxKey = 'max';
 const LobbyStateLockedKey = 'locked';
+const LobbyStatePreventStartKey = 'preventStart';
 const LobbyStateReady1Key = 'ready1';
 const LobbyStateReady2Key = 'ready2';
 export class LobbyManager implements ILobbyManager {
@@ -163,6 +164,7 @@ export class LobbyManager implements ILobbyManager {
       ...patch,
     };
     this.broadcast(this.getSettings());
+    this.checkStartMatch();
   }
   hostRemoveMod(clientId: string, modId: string) {
     const hostId = this.state.settings[LobbyStateHostIdKey];
@@ -204,21 +206,7 @@ export class LobbyManager implements ILobbyManager {
       this.state.settings[LobbyStateReady2Key] = isReady;
     }
     this.broadcast(this.getSettings());
-    const startMatch = (
-      this.state.match === undefined &&
-      this.state.settings[LobbyStateReady1Key] &&
-      this.state.settings[LobbyStateReady2Key]
-    );
-    if (startMatch) {
-      this.matchInputHistory = { history: [], };
-      this.state.match = {
-        clientId1: fighters[0].clientId,
-        clientId2: fighters[1].clientId,
-        peerId: `SL-${this.lobbyId}-${fighters[0].clientId}`,
-        p2pDisconnected: false,
-      };
-      this.broadcast(this.getMatch());
-    }
+    this.checkStartMatch();
   }
   updateNick(clientId: string, nick?: string) {
     const player = this.state.players.filter(p => p.clientId === clientId)[0];
@@ -240,8 +228,8 @@ export class LobbyManager implements ILobbyManager {
     if (index >= 0 && index < 2) {
       // a fighter thats about to be switched to spectator
       // better turn off both ready to be safe
-      this.state.settings.ready1 = false;
-      this.state.settings.ready2 = false;
+      this.state.settings[LobbyStateReady1Key] = false;
+      this.state.settings[LobbyStateReady2Key] = false;
     }
 
     // force ready false and trigger side effects
@@ -306,6 +294,26 @@ export class LobbyManager implements ILobbyManager {
 
   private sanitizeNick(nick?: string): string | undefined {
     return nick ? nick.trim().slice(0, LobbyPlayerNickMaxLength) : undefined;
+  }
+  private checkStartMatch(): void {
+    const { state } = this;
+    const fighters = state.players.filter(p => p.status === LobbyPlayerStatus.Queue);
+    const startMatch = (
+      state.match === undefined &&
+      state.settings[LobbyStatePreventStartKey] === false &&
+      state.settings[LobbyStateReady1Key] &&
+      state.settings[LobbyStateReady2Key]
+    );
+    if (startMatch) {
+      this.matchInputHistory = { history: [], };
+      state.match = {
+        clientId1: fighters[0].clientId,
+        clientId2: fighters[1].clientId,
+        peerId: `SL-${this.lobbyId}-${fighters[0].clientId}`,
+        p2pDisconnected: false,
+      };
+      this.broadcast(this.getMatch());
+    }
   }
 
   private getSettings(): BroadcastSettings {
