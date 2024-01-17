@@ -233,6 +233,18 @@ export class LobbyManager implements ILobbyManager {
     if (!player) {
       throw new Error('cannot updateStatus: player missing');
     }
+
+    // check if should invalidate ready
+    const fighters = this.state.players.filter(p => p.status === LobbyPlayerStatus.Queue);
+    const index = fighters.findIndex(ps => ps.clientId === clientId);
+    if (index >= 0 && index < 2) {
+      // a fighter thats about to be switched to spectator
+      // better turn off both ready to be safe
+      this.state.settings.ready1 = false;
+      this.state.settings.ready2 = false;
+    }
+
+    // force ready false and trigger side effects
     this.updateReady(clientId, false);
     player.status = status;
     // move to the bottom
