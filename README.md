@@ -16,7 +16,7 @@ This is to enable [Blue-Green Deployment](https://en.wikipedia.org/wiki/Blue-gre
 
 ## How and when to deploy
 
-Both servers (A and B) are live at all times and continuously deploying. Whenever you push to main, CD checks [greenblue.json](src/greenblue.json) to see which branch it should deploy to. That server will detect the changes to it's branch within 5 minutes and then reboot itself. However, this is a destruction action since lobbies rely on WebSockets, so we don't want to push to a branch that's currently being used.
+Both servers (A and B) are live at all times and continuously deploying. Whenever you push to main, CD checks [greenblue.json](src/greenblue.json) to see which branch it should deploy to. That server will detect the changes to it's branch within 5 minutes and then reboot itself. However, this is a destructive action since lobbies rely on WebSockets, so we don't want to push to a branch that's currently being used.
 
 Therefore, the best practice for development is the following steps:
 
