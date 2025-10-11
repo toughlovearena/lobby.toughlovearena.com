@@ -2,6 +2,13 @@
 
 Lobby server for ToughLoveArena
 
+## Dev
+
+```bash
+# run locally
+npm run watch
+```
+
 ## Hosting
 
 Lobbies currently have two virtual servers with their own URLs running on a single instance:
