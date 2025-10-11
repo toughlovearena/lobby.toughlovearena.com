@@ -1,6 +1,6 @@
 import { LobbyRegistrar, LobbyRegistrationArgs } from '..';
-import { BroadcastCallback } from '../../types';
 import { FakeTimeKeeper } from '../../__tests__/__mocks__/fakeTimeKeeper';
+import { BroadcastCallback } from '../../types';
 import { EmptyCallback } from './__mocks__/testHelpers';
 
 describe('lobbyRegistrar', () => {
@@ -18,12 +18,26 @@ describe('lobbyRegistrar', () => {
     expect(sut.health().lobbies.length).toBe(0);
 
     expect(sut.get('dne')).toBeUndefined();
-    const created = await sut.create();
+    const created = await sut.create(null);
     expect(sut.health().lobbies.length).toBe(1);
 
     const actual = sut.get(created.lobbyId);
     expect(actual).toBeTruthy();
     expect(actual).toEqual(created);
+  });
+
+  test('create() takes a string', async () => {
+    const tk = new FakeTimeKeeper();
+    const sut = new LobbyRegistrar(tk);
+    expect(sut.health().lobbies.length).toBe(0);
+
+    const createdRandom = await sut.create(null);
+    expect(isNaN(parseInt(createdRandom.lobbyId))).toBe(false);
+    expect(sut.health().lobbies.length).toBe(1);
+
+    const createdForce = await sut.create('forced');
+    expect(createdForce.lobbyId).toBe('forced');
+    expect(sut.health().lobbies.length).toBe(2);
   });
 
   test('checkPrune()', async () => {
@@ -33,7 +47,7 @@ describe('lobbyRegistrar', () => {
     expect(sut.checkPrune()).toBe(0);
     expect(sut.health().lobbies.length).toBe(0);
 
-    const created = await sut.create();
+    const created = await sut.create(null);
     expect(sut.health().lobbies.length).toBe(1);
 
     expect(sut.checkPrune()).toBe(0);
@@ -53,7 +67,7 @@ describe('lobbyRegistrar', () => {
     const sut = new LobbyRegistrar(tk);
     expect(sut.health().lobbies.length).toBe(0);
 
-    const lobby = await sut.create();
+    const lobby = await sut.create(null);
     const comm1 = lobby.register(genLobbyArgs('c1'))
     const comm2 = lobby.register(genLobbyArgs('c2'));
     expect(sut.health().lobbies.length).toBe(1);
