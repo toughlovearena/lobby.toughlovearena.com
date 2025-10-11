@@ -6,11 +6,11 @@ export class LobbyRegistrar {
   private readonly lookup: Record<string, LobbyManager> = {};
   constructor(private readonly timeKeeper: TimeKeeper) { }
 
-  async create(): Promise<LobbyManager> {
-    const lobbyId = (this.timeKeeper.now() % 1000000).toString().padStart(6, '0');
+  async create(lobbyId: string | null): Promise<LobbyManager> {
+    lobbyId = lobbyId ?? (this.timeKeeper.now() % 1000000).toString().padStart(6, '0');
     if (this.lookup[lobbyId]) {
       await this.timeKeeper.sleep(7);
-      return this.create();
+      return this.create(null);
     }
     this.lobbyCount++;
     const lobby = new LobbyManager(lobbyId, this.timeKeeper, () => this.checkPrune());

@@ -52,8 +52,18 @@ export class Server {
       res.send(data);
     });
     router.post('/create', async (req, res) => {
-      const lobby = await lobbyRegistrar.create();
-      res.send({ lobbyId: lobby.lobbyId, });
+      const lobby = await lobbyRegistrar.create(null);
+      return res.send({ lobbyId: lobby.lobbyId, });
+    });
+    router.post('/create/:lobbyId', async (req, res) => {
+      const lobbyId = req.params.lobbyId.length > 0
+        ? req.params.lobbyId
+        : null;
+      if (lobbyId && lobbyRegistrar.get(lobbyId)) {
+        return res.send(400);
+      }
+      const lobby = await lobbyRegistrar.create(lobbyId);
+      return res.send({ lobbyId: lobby.lobbyId, });
     });
 
     // ws
