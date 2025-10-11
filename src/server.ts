@@ -24,10 +24,12 @@ export class Server {
     });
     router.get('/health', async (req, res) => {
       const gitHash = await updater.gitter.hash();
+      const gitCommit = await updater.gitter.message();
       const lobbyData = lobbyRegistrar.health();
       const socketData = socketManager.health();
       const data = {
         gitHash,
+        gitCommit,
         branch,
         started: new Date(updater.startedAt),
         testVer: 0,
