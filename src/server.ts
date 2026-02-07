@@ -22,61 +22,68 @@ export class Server {
     router.get('/', (req, res) => {
       res.redirect('/health');
     });
-    router.get('/health', async (req, res) => {
-      const gitHash = await updater.gitter.hash();
-      const gitCommit = await updater.gitter.message();
-      const lobbyData = lobbyRegistrar.health();
-      const socketData = socketManager.health();
-      const data = {
-        gitHash,
-        gitCommit,
-        branch,
-        started: new Date(updater.startedAt),
-        testVer: 0,
-        lobbies: {
-          allTime: lobbyData.allTime,
-          total: lobbyData.lobbies.length,
-          rooms: lobbyData.lobbies.map(ld => ({
-            createdAt: new Date(ld.createdAt),
-            clients: ld.clients.length,
-          })),
-        },
-        sockets: {
-          allTime: socketData.allTime,
-          total: socketData.clients.length,
-          clients: socketData.clients.map(sd => ({
-            createdAt: new Date(sd.createdAt),
-            updatedAt: new Date(sd.updatedAt),
-            connected: !!sd.lobbyId,
-          }))
-        },
-      };
-      res.send(data);
+    router.get('/health', async (req, res, next) => {
+      try {
+        const gitHash = await updater.gitter.hash();
+        const gitCommit = await updater.gitter.message();
+        const lobbyData = lobbyRegistrar.health();
+        const socketData = socketManager.health();
+        const data = {
+          gitHash,
+          gitCommit,
+          branch,
+          started: new Date(updater.startedAt),
+          testVer: 0,
+          lobbies: {
+            allTime: lobbyData.allTime,
+            total: lobbyData.lobbies.length,
+            rooms: lobbyData.lobbies.map(ld => ({
+              createdAt: new Date(ld.createdAt),
+              clients: ld.clients.length,
+            })),
+          },
+          sockets: {
+            allTime: socketData.allTime,
+            total: socketData.clients.length,
+            clients: socketData.clients.map(sd => ({
+              createdAt: new Date(sd.createdAt),
+              updatedAt: new Date(sd.updatedAt),
+              connected: !!sd.lobbyId,
+            }))
+          },
+        };
+        res.send(data);
+      } catch (err) {
+        next(err);
+      }
     });
-    router.post('/create', async (req, res) => {
-      const lobby = await lobbyRegistrar.create(null);
-      return res.send({ lobbyId: lobby.lobbyId, });
+    router.post('/create', async (req, res, next) => {
+      lobbyRegistrar.create(null)
+        .then(lobby => res.send({ lobbyId: lobby.lobbyId, }))
+        .catch(next);
     });
-    router.post('/create/:lobbyId', async (req, res) => {
+    router.post('/create/:lobbyId', async (req, res, next) => {
       const lobbyId = req.params.lobbyId.length > 0
         ? req.params.lobbyId
         : null;
       if (lobbyId && lobbyRegistrar.get(lobbyId)) {
         return res.send(400);
       }
-      const lobby = await lobbyRegistrar.create(lobbyId);
-      return res.send({ lobbyId: lobby.lobbyId, });
+      lobbyRegistrar.create(lobbyId)
+        .then(lobby => res.send({ lobbyId: lobby.lobbyId, }))
+        .catch(next);
     });
 
     // ws
-    router.ws('/connect/:lobbyId/:clientId', async (req, res) => {
+    router.ws('/connect/:lobbyId/:clientId', async (req, res, next) => {
       const { lobbyId, clientId } = req.params;
       const lobby = lobbyRegistrar.get(lobbyId);
       if (!(lobby && clientId)) {
         return res.sendError(404);
       }
-      const ws = await res.accept();
-      socketManager.create(ws, clientId, lobby);
+      res.accept()
+        .then(ws => socketManager.create(ws, clientId, lobby))
+        .catch(next);
     });
 
     this.app.use(cors());

@@ -45,6 +45,7 @@ const LobbyStatePreventStartKey = 'preventStart';
 const LobbyStateReady1Key = 'ready1';
 const LobbyStateReady2Key = 'ready2';
 export class LobbyManager implements ILobbyManager {
+  // how long lobby can live w/o any clients, so there's a small grace period for them to join
   readonly TTL = 30 * 1000; // 30s
   private readonly createdAt: number;
   private state: LobbyState;
